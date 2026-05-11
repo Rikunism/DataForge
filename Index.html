@@ -1,0 +1,2228 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0f;--surface:#181818;--surface2:#222;--surface3:#2a2a2a;
+  --border:#2e2e2e;--border2:#3a3a3a;
+  --text:#e8e6df;--text2:#9a9890;--text3:#5a5856;
+  --accent:#c8f03c;--accent2:#a8d020;--accent-dim:#2a3a0a;
+  --blue:#4a9eff;--blue-dim:#0d2040;
+  --amber:#f0a830;--amber-dim:#2a1e08;
+  --coral:#f07060;--coral-dim:#2a1410;
+  --teal:#40c8a0;--teal-dim:#0a2a20;
+  --purple:#a080f0;--purple-dim:#1a1030;
+  --mono:'IBM Plex Mono',monospace;
+  --serif:'Spectral',serif;
+  --radius:6px;--radius-lg:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;min-height:100vh;overflow-x:hidden}
+
+.app{max-width:860px;margin:0 auto;padding:0 0 80px}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100}
+.nav-logo{font-size:11px;letter-spacing:0.12em;color:var(--text2);text-transform:uppercase}
+.nav-logo span{color:var(--accent);font-weight:500}
+.xp-bar-wrap{display:flex;align-items:center;gap:10px}
+.xp-label{font-size:11px;color:var(--text3)}
+.xp-bar{width:120px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.xp-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.6s ease}
+.xp-num{font-size:11px;color:var(--accent);min-width:60px;text-align:right}
+
+/* HERO */
+.hero{padding:40px 24px 32px}
+.hero-tag{font-size:10px;letter-spacing:0.16em;color:var(--text3);text-transform:uppercase;margin-bottom:12px}
+.hero-title{font-family:var(--serif);font-size:32px;font-weight:600;line-height:1.2;margin-bottom:8px}
+.hero-title em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:13px;color:var(--text2);line-height:1.6;max-width:480px;font-family:var(--mono)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin:0 24px 32px;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.stat-box{background:var(--surface);padding:16px 14px;text-align:center}
+.stat-num{font-size:22px;font-weight:500;color:var(--text);margin-bottom:2px}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+
+/* CHAPTER LIST */
+.section-label{font-size:10px;letter-spacing:0.14em;color:var(--text3);text-transform:uppercase;padding:0 24px;margin-bottom:14px}
+
+.chapter-list{padding:0 24px;display:flex;flex-direction:column;gap:2px}
+.chapter-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:border-color 0.2s,background 0.2s;overflow:hidden}
+.chapter-card:hover{border-color:var(--border2);background:var(--surface2)}
+.chapter-card.active{border-color:var(--accent);background:var(--surface2)}
+.chapter-card.locked{opacity:0.45;cursor:not-allowed}
+.chapter-card.completed{border-color:var(--teal)}
+
+.chapter-header{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.ch-num{font-size:10px;color:var(--text3);min-width:20px}
+.ch-badge{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ch-info{flex:1}
+.ch-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.ch-meta{font-size:11px;color:var(--text3)}
+.ch-right{display:flex;align-items:center;gap:8px}
+.ch-xp{font-size:11px;color:var(--accent);background:var(--accent-dim);padding:3px 8px;border-radius:4px}
+.ch-status{font-size:11px;color:var(--text3)}
+.ch-status.done{color:var(--teal)}
+.ch-arrow{color:var(--text3);font-size:12px;transition:transform 0.2s}
+.chapter-card.active .ch-arrow{transform:rotate(90deg)}
+
+/* CHAPTER CONTENT */
+.chapter-content{display:none;border-top:1px solid var(--border);padding:0}
+.chapter-card.active .chapter-content{display:block}
+
+.content-nav{display:flex;gap:0;border-bottom:1px solid var(--border)}
+.tab-btn{padding:10px 16px;font-size:11px;font-family:var(--mono);color:var(--text3);background:none;border:none;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.2s,border-color 0.2s}
+.tab-btn:hover{color:var(--text2)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.tab-panel{display:none;padding:20px}
+.tab-panel.active{display:block}
+
+/* MATERI */
+.materi-section{margin-bottom:20px}
+.materi-h{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.materi-text{font-size:13px;color:var(--text2);line-height:1.7;font-family:var(--mono)}
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.concept-card{background:var(--surface3);border-radius:var(--radius);padding:10px 12px;border:1px solid var(--border)}
+.concept-title{font-size:12px;color:var(--text);margin-bottom:3px;font-weight:500}
+.concept-desc{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* CODE */
+.code-block{background:#0a0a0a;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin:10px 0;position:relative;overflow-x:auto}
+.code-block pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:#cdd6f4;white-space:pre}
+.code-lang{position:absolute;top:8px;right:10px;font-size:10px;color:var(--text3);letter-spacing:0.08em}
+.copy-btn{position:absolute;top:6px;right:60px;font-size:10px;color:var(--text3);background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--mono)}
+.copy-btn:hover{color:var(--text)}
+
+/* SYNTAX COLORS */
+.kw{color:#cba6f7}.fn{color:#89b4fa}.str{color:#a6e3a1}.num{color:#fab387}.cm{color:#45475a}.op{color:#89dceb}.var{color:#cdd6f4}
+
+/* CHECKLIST */
+.checklist{list-style:none;display:flex;flex-direction:column;gap:6px}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--surface3);border-radius:var(--radius);cursor:pointer;transition:background 0.2s}
+.check-item:hover{background:var(--surface2)}
+.check-item.checked{opacity:0.6}
+.check-box{width:16px;height:16px;border:1px solid var(--border2);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.check-item.checked .check-box{background:var(--teal);border-color:var(--teal)}
+.check-mark{font-size:10px;color:#0a0a0a;display:none}
+.check-item.checked .check-mark{display:block}
+.check-text{font-size:12px;color:var(--text2);line-height:1.5}
+.check-item.checked .check-text{text-decoration:line-through;color:var(--text3)}
+
+/* MINI PROJECT */
+.project-box{background:var(--amber-dim);border:1px solid var(--amber);border-radius:var(--radius-lg);padding:16px}
+.project-tag{font-size:10px;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.project-title{font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px}
+.project-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.project-steps{list-style:none;display:flex;flex-direction:column;gap:4px}
+.project-step{font-size:12px;color:var(--text3);padding-left:14px;position:relative;line-height:1.5}
+.project-step::before{content:'→';position:absolute;left:0;color:var(--amber)}
+.complete-btn{margin-top:14px;padding:8px 16px;background:var(--amber);color:#0a0a0a;border:none;border-radius:var(--radius);font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;transition:opacity 0.2s}
+.complete-btn:hover{opacity:0.85}
+
+/* PROGRESS BAR IN CHAPTER */
+.ch-progress{height:2px;background:var(--border);margin:0 16px;border-radius:1px;overflow:hidden}
+.ch-progress-fill{height:100%;background:var(--accent);border-radius:1px;transition:width 0.4s}
+
+/* ROADMAP VIEW */
+.roadmap{padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.phase-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.phase-title{font-size:12px;font-weight:500;margin-bottom:4px}
+.phase-months{font-size:10px;color:var(--text3);margin-bottom:10px}
+.phase-skills{list-style:none;display:flex;flex-direction:column;gap:3px}
+.phase-skill{font-size:11px;color:var(--text2);padding-left:10px;position:relative}
+.phase-skill::before{content:'·';position:absolute;left:0;color:var(--text3)}
+
+/* BOTTOM CTA */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:100}
+.bottom-msg{font-size:11px;color:var(--text3)}
+.bottom-msg span{color:var(--accent)}
+.streak-badge{font-size:11px;color:var(--amber);background:var(--amber-dim);padding:4px 10px;border-radius:4px}
+
+/* TAG PILLS */
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;margin:2px;letter-spacing:0.06em}
+.tag-blue{background:var(--blue-dim);color:var(--blue)}
+.tag-teal{background:var(--teal-dim);color:var(--teal)}
+.tag-purple{background:var(--purple-dim);color:var(--purple)}
+.tag-coral{background:var(--coral-dim);color:var(--coral)}
+.tag-amber{background:var(--amber-dim);color:var(--amber)}
+
+/* ===== AUTO-KOREKSI SYSTEM ===== */
+/* SUBMIT TAB */
+.submit-zone{padding:20px}
+.submit-header{margin-bottom:16px}
+.submit-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.submit-sub{font-size:11px;color:var(--text3);line-height:1.5}
+
+.submit-type-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.type-pill{padding:5px 12px;background:var(--surface3);border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--mono);transition:all 0.2s}
+.type-pill:hover{border-color:var(--border2);color:var(--text2)}
+.type-pill.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px;background:var(--surface3)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-dim)}
+.drop-icon{font-size:24px;margin-bottom:8px}
+.drop-text{font-size:12px;color:var(--text2);margin-bottom:4px}
+.drop-hint{font-size:11px;color:var(--text3)}
+.drop-file-name{font-size:12px;color:var(--accent);margin-top:6px;display:none}
+
+.or-divider{text-align:center;font-size:11px;color:var(--text3);margin:10px 0;position:relative}
+.or-divider::before,.or-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+.or-divider::before{left:0}.or-divider::after{right:0}
+
+.paste-area{width:100%;min-height:100px;background:#0a0a0a;border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-family:var(--mono);font-size:12px;color:var(--text2);resize:vertical;outline:none;transition:border-color 0.2s;box-sizing:border-box}
+.paste-area:focus{border-color:var(--accent)}
+
+.submit-btn{width:100%;margin-top:12px;padding:10px;background:var(--accent);color:#0a0a0a;border:none;border-radius:var(--radius);font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.05em}
+.submit-btn:hover{opacity:0.85}
+.submit-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* RESULT PANEL */
+.result-panel{display:none;margin-top:16px;background:var(--surface3);border-radius:var(--radius-lg);overflow:hidden}
+.result-panel.show{display:block}
+.result-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.score-circle{width:52px;height:52px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:2px solid}
+.score-num{font-size:16px;font-weight:500;line-height:1}
+.score-label{font-size:9px;text-transform:uppercase;letter-spacing:0.08em;margin-top:1px}
+.score-excellent{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+.score-good{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.score-mid{border-color:var(--amber);color:var(--amber);background:var(--amber-dim)}
+.score-low{border-color:var(--coral);color:var(--coral);background:var(--coral-dim)}
+
+.result-summary{flex:1}
+.result-verdict{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.result-one-line{font-size:11px;color:var(--text3)}
+
+.result-body{padding:16px}
+.result-section{margin-bottom:14px}
+.result-section-title{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.result-section-title.green{color:var(--teal)}
+.result-section-title.amber{color:var(--amber)}
+.result-section-title.blue{color:var(--blue)}
+.result-item{display:flex;gap:8px;margin-bottom:5px;align-items:flex-start}
+.result-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.result-dot.green{background:var(--teal)}
+.result-dot.amber{background:var(--amber)}
+.result-dot.blue{background:var(--blue)}
+.result-item-text{font-size:12px;color:var(--text2);line-height:1.5}
+
+.code-suggestion{background:#0a0a0a;border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-top:6px;font-size:11px;font-family:var(--mono);color:#cdd6f4;white-space:pre-wrap;line-height:1.6}
+
+.claim-xp-btn{width:100%;padding:10px;background:var(--teal);color:#0a0a0a;border:none;border-radius:var(--radius);font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;margin-top:4px;transition:opacity 0.2s}
+.claim-xp-btn:hover{opacity:0.85}
+
+/* LOADING STATE */
+.ai-loading{display:none;padding:24px;text-align:center}
+.ai-loading.show{display:block}
+.loading-spinner{display:inline-block;width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:12px;color:var(--text3)}
+.loading-dots::after{content:'';animation:dots 1.4s infinite}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+
+/* PAST SUBMISSIONS */
+.past-submissions{margin-top:16px}
+.past-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.past-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border-radius:var(--radius);margin-bottom:4px;border:1px solid var(--border)}
+.past-score-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:3px}
+.past-info{flex:1;font-size:11px;color:var(--text3)}
+.past-type{font-size:10px;color:var(--text3)}
+
+/* ===== INTERACTIVE CODING CHALLENGE ===== */
+.challenge-wrap{display:flex;flex-direction:column;gap:0}
+.challenge-nav{display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.ch-pill{padding:4px 10px;font-size:10px;font-family:var(--mono);background:var(--surface3);border:1px solid var(--border);border-radius:12px;color:var(--text3);cursor:pointer;transition:all 0.2s;letter-spacing:0.04em}
+.ch-pill:hover{border-color:var(--border2);color:var(--text2)}
+.ch-pill.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
+.ch-pill.done{background:var(--teal-dim);border-color:var(--teal);color:var(--teal)}
+.ch-pill-sep{color:var(--text3);font-size:10px}
+
+.challenge-body{display:flex;min-height:460px}
+.challenge-left{width:42%;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface)}
+.challenge-right{flex:1;display:flex;flex-direction:column;background:#0a0a0a}
+
+/* LEFT PANEL */
+.chal-task{padding:16px;flex:1;overflow-y:auto}
+.chal-task-num{font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.chal-task-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px;line-height:1.4}
+.chal-task-desc{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px}
+.chal-task-desc code{background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:11px;color:var(--accent)}
+.chal-expected{background:var(--surface3);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px}
+.chal-expected-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.chal-expected-val{font-size:11px;font-family:var(--mono);color:var(--accent);line-height:1.5}
+
+/* TEST CASES */
+.test-cases{margin-bottom:12px}
+.test-case{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--radius);margin-bottom:3px;background:var(--surface3);border:1px solid var(--border)}
+.test-case.pass{background:var(--teal-dim);border-color:var(--teal)}
+.test-case.fail{background:var(--coral-dim);border-color:var(--coral)}
+.test-icon{font-size:11px;flex-shrink:0}
+.test-label{font-size:11px;color:var(--text2);flex:1}
+.test-case.pass .test-label{color:var(--teal)}
+.test-case.fail .test-label{color:var(--coral)}
+
+/* HINTS */
+.hint-section{padding:0 16px 12px}
+.hint-toggle{font-size:11px;color:var(--amber);cursor:pointer;display:flex;align-items:center;gap:5px;background:none;border:none;font-family:var(--mono);padding:0;letter-spacing:0.04em}
+.hint-toggle:hover{color:var(--text)}
+.hint-box{background:var(--amber-dim);border:1px solid var(--amber);border-radius:var(--radius);padding:10px 12px;margin-top:6px;display:none}
+.hint-box.show{display:block}
+.hint-text{font-size:12px;color:var(--text2);line-height:1.6}
+.hint-text code{background:rgba(240,168,48,.15);padding:1px 5px;border-radius:3px;font-size:11px;color:var(--amber)}
+.hint-steps{list-style:none;margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.hint-step{font-size:12px;color:var(--text2);padding-left:14px;position:relative}
+.hint-step::before{content:'💡';position:absolute;left:0;font-size:10px}
+
+/* RIGHT PANEL – EDITOR */
+.editor-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border2);background:#111}
+.editor-lang{font-size:10px;color:var(--text3);letter-spacing:0.08em}
+.editor-actions{display:flex;gap:6px}
+.editor-btn{padding:4px 10px;font-size:10px;font-family:var(--mono);border:1px solid var(--border2);border-radius:4px;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em}
+.btn-reset{background:transparent;color:var(--text3)}
+.btn-reset:hover{color:var(--text);border-color:var(--border2)}
+.btn-ai{background:var(--purple-dim);border-color:var(--purple);color:var(--purple)}
+.btn-ai:hover{opacity:0.8}
+.btn-run{background:var(--accent);border-color:var(--accent);color:#0a0a0a;font-weight:500}
+.btn-run:hover{opacity:0.85}
+.btn-run:disabled{opacity:0.4;cursor:not-allowed}
+
+.code-editor{flex:1;width:100%;background:#0a0a0a;border:none;outline:none;font-family:var(--mono);font-size:12px;color:#cdd6f4;padding:14px;resize:none;line-height:1.7;tab-size:4;min-height:200px}
+
+/* OUTPUT */
+.output-panel{border-top:1px solid var(--border2);background:#080808;min-height:100px;max-height:160px;overflow-y:auto}
+.output-toolbar{padding:6px 12px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border2)}
+.output-status{width:6px;height:6px;border-radius:50%;background:var(--border2)}
+.output-status.running{background:var(--amber);animation:pulse 0.8s infinite}
+.output-status.pass{background:var(--teal)}
+.output-status.fail{background:var(--coral)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.output-text{padding:10px 12px;font-family:var(--mono);font-size:11px;color:#a6e3a1;line-height:1.6;white-space:pre-wrap}
+.output-text.error{color:var(--coral)}
+.output-text.info{color:var(--text3)}
+
+/* AI REVIEW PANEL (in challenge) */
+.ai-review-panel{border-top:1px solid var(--border2);background:var(--purple-dim);padding:12px 14px;display:none}
+.ai-review-panel.show{display:block}
+.ai-review-header{font-size:10px;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.ai-review-body{font-size:12px;color:var(--text2);line-height:1.6}
+.ai-review-body code{background:rgba(160,128,240,.15);padding:1px 5px;border-radius:3px;font-size:11px;color:var(--purple)}
+
+/* SUCCESS BANNER */
+.success-banner{display:none;margin:12px 16px;background:var(--teal-dim);border:1px solid var(--teal);border-radius:var(--radius-lg);padding:12px 14px}
+.success-banner.show{display:flex;align-items:center;gap:10px}
+.success-icon{font-size:20px}
+.success-text{flex:1}
+.success-title{font-size:12px;font-weight:500;color:var(--teal);margin-bottom:2px}
+.success-sub{font-size:11px;color:var(--text3)}
+.next-chal-btn{padding:6px 12px;background:var(--teal);color:#0a0a0a;border:none;border-radius:var(--radius);font-family:var(--mono);font-size:11px;font-weight:500;cursor:pointer}
+.next-chal-btn:hover{opacity:0.85}
+
+/* PROGRESS BAR per challenge */
+.chal-progress-wrap{padding:8px 16px;border-top:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:10px}
+.chal-prog-bar{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.chal-prog-fill{height:100%;background:var(--blue);border-radius:2px;transition:width 0.5s ease}
+.chal-prog-label{font-size:10px;color:var(--text3)}
+/* ===== END CHALLENGE CSS ===== */
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">DS <span>Quest</span> — 12 Bulan Roadmap</div>
+  <div class="xp-bar-wrap">
+    <span class="xp-label">XP</span>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+    <span class="xp-num" id="xpNum">0 / 1000</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Karir Switch · Data Science · ≤1 jam/hari</div>
+  <h1 class="hero-title">Dari Python biasa<br>ke <em>Data Scientist</em> dalam<br>12 bulan.</h1>
+  <p class="hero-sub">Roadmap khusus kamu: Python dasar → statistik → ML → portfolio → hired. Setiap sesi ≤45 menit, setiap chapter punya kode nyata + mini proyek.</p>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-num" id="statDone">0</div><div class="stat-lbl">Chapter selesai</div></div>
+  <div class="stat-box"><div class="stat-num" id="statXp">0</div><div class="stat-lbl">Total XP</div></div>
+  <div class="stat-box"><div class="stat-num" id="statStreak">0</div><div class="stat-lbl">Day streak</div></div>
+  <div class="stat-box"><div class="stat-num" id="statPct">0%</div><div class="stat-lbl">Progress</div></div>
+</div>
+
+<!-- CHAPTER LABEL -->
+<div class="section-label" style="margin-bottom:10px">📚 Chapters — klik untuk buka materi</div>
+
+<!-- CHAPTERS -->
+<div class="chapter-list" id="chapterList"></div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bottom-msg">Hari ini: <span id="todayChapter">Buka chapter pertama ↑</span></div>
+  <div class="streak-badge" id="streakBadge">🔥 0 hari</div>
+</div>
+
+<!-- Pyodide for in-browser Python execution -->
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+<script>
+const CHAPTERS = [
+  {
+    id:1, title:"Python untuk Data Science", months:"Bulan 1, Minggu 1–2", emoji:"🐍",
+    xp:80, color:"blue", tags:["python","numpy","pandas"],
+    unlocked:true,
+    materi:`Python yang kamu sudah tahu akan kita arahkan khusus ke ekosistem data. Di sini kita setup environment yang bener dan kenalan dengan tools utama: NumPy untuk array numerik cepat, Pandas untuk data tabular, dan Jupyter sebagai tempat eksperimen.
+
+Perbedaan utama Python "biasa" vs Python data science adalah penggunaan library dan pola kerja. Di DS kita jarang nulis class rumit — lebih banyak manipulasi data pipeline style.`,
+    concepts:[
+      {t:"NumPy Array",d:"Struktur data cepat untuk operasi numerik. 10–100x lebih cepat dari Python list biasa."},
+      {t:"Pandas DataFrame",d:"Tabel data 2D mirip Excel tapi bisa diprogram. Kolom = Series, baris = records."},
+      {t:"Jupyter Notebook",d:"Environment interaktif: kode + output + dokumentasi dalam satu file .ipynb."},
+      {t:"Broadcasting",d:"NumPy bisa operasi array beda ukuran secara otomatis dengan aturan tertentu."}
+    ],
+    code:`<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># NumPy: array numerik cepat</span>
+scores = np.array([<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">95</span>, <span class="num">88</span>])
+<span class="fn">print</span>(<span class="str">f"Rata-rata: {scores.mean():.1f}"</span>)
+<span class="fn">print</span>(<span class="str">f"Std dev: {scores.std():.1f}"</span>)
+
+<span class="cm"># Pandas: buat DataFrame dari dict</span>
+data = {
+    <span class="str">'nama'</span>: [<span class="str">'Andi'</span>, <span class="str">'Budi'</span>, <span class="str">'Citra'</span>, <span class="str">'Dewi'</span>],
+    <span class="str">'skor'</span>: [<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">95</span>],
+    <span class="str">'kota'</span>: [<span class="str">'Jakarta'</span>, <span class="str">'Bandung'</span>, <span class="str">'Surabaya'</span>, <span class="str">'Bandung'</span>]
+}
+df = pd.DataFrame(data)
+
+<span class="cm"># Filter: hanya yang skor > 80</span>
+top = df[df[<span class="str">'skor'</span>] > <span class="num">80</span>]
+<span class="fn">print</span>(top)
+
+<span class="cm"># Group by kota, hitung rata-rata</span>
+<span class="fn">print</span>(df.groupby(<span class="str">'kota'</span>)[<span class="str">'skor'</span>].mean())`,
+    checklist:[
+      "Install Anaconda / Miniconda dan buat environment baru",
+      "Buka Jupyter Notebook, buat file pertama",
+      "Buat NumPy array, coba .mean(), .std(), .max()",
+      "Buat DataFrame dari dict dengan minimal 3 kolom",
+      "Filter baris berdasarkan kondisi (boolean indexing)",
+      "Groupby + aggregasi pada kolom numerik"
+    ],
+    project:{
+      title:"Analisis Nilai Ujian Kelas",
+      desc:"Buat notebook yang menganalisis data nilai 30 siswa (kamu buat sendiri dengan random). Tampilkan statistik dasar, siswa terbaik per mata pelajaran, dan rata-rata per kelompok.",
+      steps:[
+        "Generate data: np.random.randint(60,100, size=(30,4)) untuk 4 mapel",
+        "Bungkus jadi DataFrame dengan nama siswa dan mapel",
+        "Hitung mean, max, min per mapel",
+        "Cari siapa siswa dengan total nilai tertinggi",
+        "Filter siswa yang rata-ratanya di atas 80"
+      ]
+    }
+  },
+  {
+    id:2, title:"Data Cleaning & Eksplorasi (EDA)", months:"Bulan 1, Minggu 3–4", emoji:"🔍",
+    xp:90, color:"teal", tags:["eda","cleaning","visualization"],
+    unlocked:true,
+    materi:`Di dunia nyata, 80% waktu data scientist dipakai untuk bersih-bersih data. Data kotor adalah musuh utama model ML. EDA (Exploratory Data Analysis) adalah proses memahami data sebelum modeling — wajib dilakukan setiap kali dapat dataset baru.
+
+Kamu akan belajar mendeteksi dan menangani missing values, outlier, duplikat, tipe data yang salah, dan distribusi yang tidak normal.`,
+    concepts:[
+      {t:"Missing Values",d:"Data yang kosong (NaN). Bisa di-drop, di-fill dengan mean/median/modus, atau di-impute dengan model."},
+      {t:"Outlier",d:"Nilai ekstrem yang jauh dari distribusi normal. Bisa data error atau data valid tapi langka."},
+      {t:"Distribusi",d:"Bagaimana nilai data tersebar. Normal, skewed, bimodal — tiap distribusi butuh penanganan beda."},
+      {t:"Correlation",d:"Hubungan linear antara dua variabel. Range -1 sampai +1. Penting untuk feature selection."}
+    ],
+    code:`<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Load dataset (pakai dataset built-in)</span>
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+housing = fetch_california_housing(as_frame=<span class="kw">True</span>)
+df = housing.frame
+
+<span class="cm"># 1. Cek info umum</span>
+<span class="fn">print</span>(df.shape)        <span class="cm"># (rows, cols)</span>
+<span class="fn">print</span>(df.info())       <span class="cm"># tipe data & missing</span>
+<span class="fn">print</span>(df.describe())   <span class="cm"># statistik dasar</span>
+
+<span class="cm"># 2. Cek missing values</span>
+missing = df.isnull().sum()
+<span class="fn">print</span>(missing[missing > <span class="num">0</span>])
+
+<span class="cm"># 3. Deteksi outlier dengan IQR</span>
+Q1 = df[<span class="str">'MedHouseVal'</span>].quantile(<span class="num">0.25</span>)
+Q3 = df[<span class="str">'MedHouseVal'</span>].quantile(<span class="num">0.75</span>)
+IQR = Q3 - Q1
+outliers = df[(df[<span class="str">'MedHouseVal'</span>] < Q1-<span class="num">1.5</span>*IQR) |
+              (df[<span class="str">'MedHouseVal'</span>] > Q3+<span class="num">1.5</span>*IQR)]
+<span class="fn">print</span>(<span class="str">f"Outlier: {len(outliers)} baris"</span>)
+
+<span class="cm"># 4. Korelasi antar kolom</span>
+corr = df.corr()
+<span class="fn">print</span>(corr[<span class="str">'MedHouseVal'</span>].sort_values(ascending=<span class="kw">False</span>))`,
+    checklist:[
+      "Load dataset CSV atau pakai sklearn.datasets",
+      "Gunakan .info(), .describe(), .shape() untuk overview",
+      "Cek dan tangani missing values dengan fillna atau dropna",
+      "Deteksi outlier dengan metode IQR",
+      "Buat histogram dan boxplot untuk distribusi",
+      "Hitung correlation matrix dan interpretasikan"
+    ],
+    project:{
+      title:"EDA Dataset Titanic",
+      desc:"Download dataset Titanic dari Kaggle (CSV gratis). Lakukan analisis lengkap: siapa yang lebih mungkin selamat? Apa faktor penentu utama? Jawab dengan data.",
+      steps:[
+        "Load titanic.csv ke DataFrame",
+        "Identifikasi semua missing values dan putuskan cara handle-nya",
+        "Visualisasi survival rate berdasarkan gender, kelas, usia",
+        "Buat correlation heatmap dengan seaborn",
+        "Tulis 3–5 insight dalam markdown cell"
+      ]
+    }
+  },
+  {
+    id:3, title:"Statistik untuk Data Science", months:"Bulan 2", emoji:"📊",
+    xp:100, color:"purple", tags:["statistik","probability","hypothesis"],
+    unlocked:false,
+    materi:`Statistik adalah bahasa data. Tanpa memahami konsep di balik angka, kamu hanya akan copy-paste kode tanpa tahu artinya. Interviewer DS selalu tanya statistik — ini yang membedakan DS serius vs yang cuma pakai sklearn tanpa ngerti.
+
+Kita fokus ke statistik yang benar-benar dipakai di industri: distribusi, hypothesis testing, dan probability dasar.`,
+    concepts:[
+      {t:"Central Limit Theorem",d:"Sample mean dari populasi apapun akan terdistribusi normal jika sampel cukup besar (n≥30). Fondasi inferensi statistik."},
+      {t:"P-value & Hypothesis",d:"P-value: probabilitas hasil terjadi secara kebetulan. Jika p < 0.05, hasil dianggap signifikan secara statistik."},
+      {t:"Confidence Interval",d:"Range nilai yang dengan kepercayaan tertentu (95%) mengandung parameter populasi sebenarnya."},
+      {t:"A/B Testing",d:"Eksperimen membandingkan dua versi (A vs B). Sangat umum di industri tech untuk keputusan produk."}
+    ],
+    code:`<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Simulasi A/B test</span>
+np.random.seed(<span class="num">42</span>)
+group_A = np.random.normal(<span class="num">50</span>, <span class="num">10</span>, <span class="num">100</span>)  <span class="cm"># kontrol</span>
+group_B = np.random.normal(<span class="num">53</span>, <span class="num">10</span>, <span class="num">100</span>)  <span class="cm"># treatment</span>
+
+<span class="cm"># Independent t-test</span>
+t_stat, p_value = stats.ttest_ind(group_A, group_B)
+<span class="fn">print</span>(<span class="str">f"T-statistic: {t_stat:.3f}"</span>)
+<span class="fn">print</span>(<span class="str">f"P-value: {p_value:.4f}"</span>)
+
+<span class="kw">if</span> p_value < <span class="num">0.05</span>:
+    <span class="fn">print</span>(<span class="str">"✓ Perbedaan signifikan secara statistik"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"✗ Tidak ada bukti perbedaan nyata"</span>)
+
+<span class="cm"># Confidence interval 95%</span>
+mean_A = group_A.mean()
+se_A = stats.sem(group_A)
+ci = stats.t.interval(<span class="num">0.95</span>, df=len(group_A)-<span class="num">1</span>,
+                      loc=mean_A, scale=se_A)
+<span class="fn">print</span>(<span class="str">f"95% CI Group A: ({ci[0]:.2f}, {ci[1]:.2f})"</span>)`,
+    checklist:[
+      "Pahami perbedaan mean, median, mode — kapan masing-masing dipakai",
+      "Implementasi t-test dengan scipy.stats",
+      "Buat simulasi melempar koin 1000x, plot distribusinya",
+      "Hitung confidence interval secara manual dan pakai scipy",
+      "Baca dan interpretasikan p-value dari output",
+      "Tulis laporan singkat hasil hypothesis test dalam bahasa awam"
+    ],
+    project:{
+      title:"Simulasi A/B Test E-commerce",
+      desc:"Simulasikan A/B test untuk halaman checkout: versi A (tombol hijau) vs B (tombol merah). Tentukan apakah perbedaan conversion rate signifikan secara statistik.",
+      steps:[
+        "Generate data conversion rate dua grup dengan np.random.binomial",
+        "Hitung chi-square test untuk proporsi (bukan t-test)",
+        "Tentukan sample size minimum untuk power 80%",
+        "Buat visualisasi distribusi kedua grup",
+        "Tulis rekomendasi bisnis berdasarkan hasil test"
+      ]
+    }
+  },
+  {
+    id:4, title:"Visualisasi Data", months:"Bulan 3", emoji:"📈",
+    xp:85, color:"coral", tags:["matplotlib","seaborn","plotly"],
+    unlocked:false,
+    materi:`Visualisasi yang bagus mengubah angka membingungkan menjadi insight yang bisa langsung diambil keputusan. Di industri, kemampuan membuat chart yang clear dan informatif sangat dihargai — terutama untuk presentasi ke stakeholder non-teknis.
+
+Kita pelajari tiga library: Matplotlib (fundamental, kontrol penuh), Seaborn (statistik visual yang cepat), dan Plotly (interaktif untuk dashboard).`,
+    concepts:[
+      {t:"Chart yang tepat",d:"Bar chart untuk perbandingan kategori, line untuk tren waktu, scatter untuk korelasi, heatmap untuk matriks."},
+      {t:"Storytelling dengan data",d:"Urutan chart yang membangun narasi. Highlight data point penting. Judul yang informatif, bukan deskriptif."},
+      {t:"Color theory",d:"Gunakan warna untuk encode makna, bukan dekorasi. Pertimbangkan color blindness. Max 5–6 warna per chart."},
+      {t:"Plotly interaktif",d:"Chart yang bisa di-hover, zoom, filter. Penting untuk dashboard dan presentasi modern."}
+    ],
+    code:`<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">import</span> plotly.express <span class="kw">as</span> px
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Setup style Seaborn</span>
+sns.set_theme(style=<span class="str">"whitegrid"</span>, palette=<span class="str">"husl"</span>)
+
+<span class="cm"># Dataset Gapminder</span>
+df = px.data.gapminder().query(<span class="str">"year == 2007"</span>)
+
+<span class="cm"># 1. Scatter plot: GDP vs Life Expectancy</span>
+fig, axes = plt.subplots(<span class="num">1</span>, <span class="num">2</span>, figsize=(<span class="num">14</span>, <span class="num">5</span>))
+
+axes[<span class="num">0</span>].scatter(df[<span class="str">'gdpPercap'</span>], df[<span class="str">'lifeExp'</span>],
+                 alpha=<span class="num">0.6</span>, c=<span class="str">'steelblue'</span>, s=<span class="num">40</span>)
+axes[<span class="num">0</span>].set_xscale(<span class="str">'log'</span>)
+axes[<span class="num">0</span>].set_title(<span class="str">'GDP vs Harapan Hidup (2007)'</span>)
+axes[<span class="num">0</span>].set_xlabel(<span class="str">'GDP per Kapita (log scale)'</span>)
+axes[<span class="num">0</span>].set_ylabel(<span class="str">'Harapan Hidup (tahun)'</span>)
+
+<span class="cm"># 2. Heatmap korelasi dengan Seaborn</span>
+sns.heatmap(df[[<span class="str">'gdpPercap'</span>,<span class="str">'lifeExp'</span>,<span class="str">'pop'</span>]].corr(),
+            annot=<span class="kw">True</span>, fmt=<span class="str">'.2f'</span>, cmap=<span class="str">'coolwarm'</span>, ax=axes[<span class="num">1</span>])
+
+plt.tight_layout()
+plt.savefig(<span class="str">'gdp_analysis.png'</span>, dpi=<span class="num">150</span>, bbox_inches=<span class="str">'tight'</span>)`,
+    checklist:[
+      "Buat 5 jenis chart dasar: bar, line, scatter, histogram, boxplot",
+      "Kustomisasi: judul, label axis, legend, warna, figsize",
+      "Buat subplot dengan plt.subplots()",
+      "Gunakan Seaborn pairplot untuk analisis multi-variabel",
+      "Buat satu chart interaktif dengan Plotly Express",
+      "Export chart ke PNG dengan resolusi tinggi"
+    ],
+    project:{
+      title:"Dashboard Visual COVID-19 Indonesia",
+      desc:"Ambil data COVID-19 publik dan buat 'laporan visual' 1 halaman dengan 4 chart yang menceritakan satu narasi yang koheren.",
+      steps:[
+        "Download data Our World in Data COVID Indonesia (CSV publik)",
+        "Buat line chart: kasus harian + 7-day rolling average",
+        "Bar chart: total kasus per provinsi (top 10)",
+        "Scatter: vaksinasi vs kematian",
+        "Gabungkan 4 chart dalam satu figure, beri judul naratif"
+      ]
+    }
+  },
+  {
+    id:5, title:"Machine Learning Pertama", months:"Bulan 4–5", emoji:"🤖",
+    xp:120, color:"teal", tags:["sklearn","regression","classification"],
+    unlocked:false,
+    materi:`Ini momen yang ditunggu-tunggu. Tapi ingat: ML bukan sihir. Setiap algoritma punya asumsi, kelebihan, dan kekurangan. Kunci sukses di DS bukan hafal algoritma terbanyak, tapi tahu kapan pakai algoritma mana dan bisa evaluasi hasilnya dengan benar.
+
+Kita mulai dari supervised learning yang paling fundamental dan paling sering muncul di job interview.`,
+    concepts:[
+      {t:"Train-Test Split",d:"Pisahkan data: model belajar dari train set, dievaluasi di test set. Mencegah overfitting dan data leakage."},
+      {t:"Overfitting vs Underfitting",d:"Overfit: model hafal data train tapi gagal di data baru. Underfit: model terlalu sederhana. Balance = Goldilocks zone."},
+      {t:"Feature Engineering",d:"Membuat atau mengubah fitur input untuk membantu model belajar pola. Sering lebih impactful dari ganti algoritma."},
+      {t:"Cross-Validation",d:"Evaluasi model dengan multiple train-test split. Lebih reliable dari single split. Standard: k=5 atau k=10."}
+    ],
+    code:`<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, cross_val_score
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report, confusion_matrix
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+
+<span class="cm"># Load dataset</span>
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+
+<span class="cm"># Split 80/20</span>
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=<span class="num">0.2</span>, random_state=<span class="num">42</span>
+)
+
+<span class="cm"># Normalisasi (wajib untuk Logistic Regression)</span>
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+<span class="cm"># Model 1: Logistic Regression</span>
+lr = LogisticRegression(max_iter=<span class="num">1000</span>)
+lr.fit(X_train, y_train)
+lr_cv = cross_val_score(lr, X_train, y_train, cv=<span class="num">5</span>)
+<span class="fn">print</span>(<span class="str">f"LR CV score: {lr_cv.mean():.3f} ± {lr_cv.std():.3f}"</span>)
+
+<span class="cm"># Model 2: Random Forest</span>
+rf = RandomForestClassifier(n_estimators=<span class="num">100</span>, random_state=<span class="num">42</span>)
+rf.fit(X_train, y_train)
+<span class="fn">print</span>(classification_report(y_test, rf.predict(X_test)))`,
+    checklist:[
+      "Pahami konsep supervised vs unsupervised learning",
+      "Implementasi train-test split dengan benar (stratify untuk classification)",
+      "Latih model Linear Regression dan evaluasi dengan MSE, R²",
+      "Latih Logistic Regression untuk binary classification",
+      "Gunakan cross_val_score untuk evaluasi yang lebih reliable",
+      "Baca dan interpretasikan confusion matrix & classification report",
+      "Coba Random Forest dan bandingkan hasilnya"
+    ],
+    project:{
+      title:"Prediksi Kelayakan Kredit",
+      desc:"Gunakan dataset German Credit (UCI Repository). Prediksi apakah seseorang layak dapat pinjaman bank berdasarkan profile mereka.",
+      steps:[
+        "Load dan clean dataset German Credit",
+        "Feature engineering: encode kategorik, handle missing",
+        "Bandingkan minimal 3 model: LR, Decision Tree, Random Forest",
+        "Evaluasi dengan precision, recall, F1 — bukan hanya accuracy",
+        "Buat feature importance plot: faktor apa yang paling pengaruhi?",
+        "Tulis kesimpulan: model mana yang terbaik dan kenapa?"
+      ]
+    }
+  },
+  {
+    id:6, title:"ML Lanjutan: Ensemble & Tuning", months:"Bulan 6", emoji:"⚙️",
+    xp:130, color:"amber", tags:["xgboost","hyperparameter","pipeline"],
+    unlocked:false,
+    materi:`Setelah bisa baseline model, langkah berikutnya adalah memaksimalkan performa. Di sinilah Kaggle competitions dan proyek nyata dimulai. XGBoost dan LightGBM adalah algoritma yang paling sering menang kompetisi tabular data.
+
+Pipeline sklearn mengotomasi preprocessing + modeling agar tidak terjadi data leakage dan kode lebih bersih.`,
+    concepts:[
+      {t:"Gradient Boosting",d:"Ensemble method yang membangun model secara sequential — tiap model memperbaiki error model sebelumnya. XGBoost, LightGBM, CatBoost."},
+      {t:"Hyperparameter Tuning",d:"Mencari kombinasi parameter terbaik. Grid Search exhaustif, Random Search lebih cepat, Optuna/Bayesian paling efisien."},
+      {t:"sklearn Pipeline",d:"Wrapper yang menggabungkan preprocessing steps + model. Mencegah data leakage dan mempermudah deployment."},
+      {t:"SHAP Values",d:"Cara menjelaskan prediksi model secara individual. Penting untuk interpretability dan komunikasi ke stakeholder."}
+    ],
+    code:`<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.compose <span class="kw">import</span> ColumnTransformer
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler, OneHotEncoder
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> RandomizedSearchCV
+<span class="kw">import</span> xgboost <span class="kw">as</span> xgb
+
+<span class="cm"># Definisi fitur</span>
+num_features = [<span class="str">'age'</span>, <span class="str">'income'</span>, <span class="str">'loan_amount'</span>]
+cat_features = [<span class="str">'job_type'</span>, <span class="str">'education'</span>]
+
+<span class="cm"># Preprocessor</span>
+preprocessor = ColumnTransformer([
+    (<span class="str">'num'</span>, StandardScaler(), num_features),
+    (<span class="str">'cat'</span>, OneHotEncoder(handle_unknown=<span class="str">'ignore'</span>), cat_features)
+])
+
+<span class="cm"># Full pipeline</span>
+pipeline = Pipeline([
+    (<span class="str">'prep'</span>, preprocessor),
+    (<span class="str">'model'</span>, xgb.XGBClassifier(random_state=<span class="num">42</span>, eval_metric=<span class="str">'logloss'</span>))
+])
+
+<span class="cm"># Hyperparameter search</span>
+param_dist = {
+    <span class="str">'model__n_estimators'</span>: [<span class="num">100</span>, <span class="num">200</span>, <span class="num">500</span>],
+    <span class="str">'model__max_depth'</span>: [<span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>],
+    <span class="str">'model__learning_rate'</span>: [<span class="num">0.01</span>, <span class="num">0.05</span>, <span class="num">0.1</span>],
+    <span class="str">'model__subsample'</span>: [<span class="num">0.8</span>, <span class="num">1.0</span>]
+}
+search = RandomizedSearchCV(pipeline, param_dist, n_iter=<span class="num">20</span>,
+                            cv=<span class="num">5</span>, scoring=<span class="str">'roc_auc'</span>, n_jobs=-<span class="num">1</span>)
+search.fit(X_train, y_train)
+<span class="fn">print</span>(<span class="str">f"Best AUC: {search.best_score_:.4f}"</span>)`,
+    checklist:[
+      "Install dan coba XGBoost, bandingkan dengan Random Forest",
+      "Buat sklearn Pipeline yang menggabungkan ColumnTransformer + model",
+      "Lakukan RandomizedSearchCV untuk hyperparameter tuning",
+      "Gunakan SHAP untuk menjelaskan prediksi individual",
+      "Plot learning curve: apakah model overfit?",
+      "Submit ke satu kompetisi Kaggle (tabular, beginner-friendly)"
+    ],
+    project:{
+      title:"Kaggle Competition: House Prices",
+      desc:"Ikuti kompetisi Kaggle 'House Prices: Advanced Regression Techniques'. Target: masuk top 30% leaderboard.",
+      steps:[
+        "Download data dari Kaggle, lakukan EDA menyeluruh",
+        "Feature engineering kreatif: interaksi fitur, log transform",
+        "Build pipeline dengan XGBoost",
+        "Hyperparameter tuning dengan RandomizedSearchCV",
+        "Ensemble beberapa model dengan weighted average",
+        "Submit dan catat skor, iterasi untuk perbaikan"
+      ]
+    }
+  },
+  {
+    id:7, title:"SQL & Database untuk DS", months:"Bulan 7", emoji:"🗄️",
+    xp:95, color:"blue", tags:["sql","postgresql","data-wrangling"],
+    unlocked:false,
+    materi:`SQL adalah skill yang WAJIB dan sering diabaikan. Di hampir semua perusahaan, data tersimpan di database relasional. Interview DS hampir selalu ada SQL test. Kemampuan SQL yang baik membuat kamu jauh lebih efektif karena bisa ambil data sendiri tanpa bergantung data engineer.
+
+Kita pelajari SQL dari dasar sampai window functions yang biasa muncul di interview level senior.`,
+    concepts:[
+      {t:"JOIN Types",d:"INNER JOIN: irisan. LEFT JOIN: semua kiri + yang match kanan. FULL OUTER: semua baris. Cross: kombinasi semua."},
+      {t:"Window Functions",d:"ROW_NUMBER, RANK, LAG, LEAD, SUM OVER — kalkulasi per-row dengan context dari rows lain. Sangat powerful untuk analisis."},
+      {t:"CTEs",d:"Common Table Expressions (WITH clause): membuat query sementara yang bisa di-reference. Kode lebih readable vs nested subquery."},
+      {t:"Aggregasi & Group By",d:"COUNT, SUM, AVG, MAX, MIN dikombinasikan dengan GROUP BY. HAVING untuk filter setelah agregasi."}
+    ],
+    code:`<span class="cm">-- Window Function: ranking penjualan per kategori</span>
+<span class="kw">WITH</span> ranked_sales <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        product_name,
+        category,
+        total_revenue,
+        <span class="fn">RANK</span>() <span class="kw">OVER</span> (
+            <span class="kw">PARTITION BY</span> category
+            <span class="kw">ORDER BY</span> total_revenue <span class="kw">DESC</span>
+        ) <span class="kw">as</span> rank_in_category,
+        <span class="fn">SUM</span>(total_revenue) <span class="kw">OVER</span> (
+            <span class="kw">PARTITION BY</span> category
+        ) <span class="kw">as</span> category_total
+    <span class="kw">FROM</span> products
+    <span class="kw">JOIN</span> sales <span class="kw">USING</span> (product_id)
+    <span class="kw">WHERE</span> sale_date >= <span class="str">'2024-01-01'</span>
+),
+category_summary <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> *,
+        <span class="fn">ROUND</span>(total_revenue / category_total * <span class="num">100</span>, <span class="num">1</span>) <span class="kw">AS</span> pct_share
+    <span class="kw">FROM</span> ranked_sales
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> category_summary
+<span class="kw">WHERE</span> rank_in_category <= <span class="num">3</span>
+<span class="kw">ORDER BY</span> category, rank_in_category;`,
+    checklist:[
+      "Setup PostgreSQL lokal atau pakai DBeaver + SQLite",
+      "Kuasai SELECT, WHERE, GROUP BY, HAVING, ORDER BY",
+      "Latihan semua tipe JOIN dengan dataset relasional",
+      "Tulis 5 CTE untuk analisis multi-step",
+      "Implementasi window functions: RANK, LAG, SUM OVER PARTITION",
+      "Selesaikan 20 soal di sqlzoo.net atau leetcode SQL",
+      "Connect pandas ke SQL dengan pd.read_sql()"
+    ],
+    project:{
+      title:"Analisis Database E-commerce",
+      desc:"Gunakan dataset Northwind atau Olist Brazilian E-commerce. Jawab 10 pertanyaan bisnis menggunakan pure SQL.",
+      steps:[
+        "Import dataset ke PostgreSQL atau SQLite",
+        "Pertanyaan 1-3: agregasi dasar (top customers, revenue per month)",
+        "Pertanyaan 4-6: multi-table JOIN (order details + products + customers)",
+        "Pertanyaan 7-9: window functions (cohort analysis, running total)",
+        "Pertanyaan 10: CTE kompleks (customer lifetime value)",
+        "Export hasil ke Pandas, buat 2 visualisasi dari query"
+      ]
+    }
+  },
+  {
+    id:8, title:"Deep Learning Dasar", months:"Bulan 8–9", emoji:"🧠",
+    xp:150, color:"purple", tags:["pytorch","neural-network","cnn"],
+    unlocked:false,
+    materi:`Deep Learning adalah subset ML dengan neural network berlapis banyak. Wajib dikuasai untuk computer vision, NLP, dan job yang lebih advanced. Kita pakai PyTorch — lebih pythonic dan lebih banyak dipakai di riset dan startup.
+
+Dimulai dari konsep dasar neural network, lalu ke CNN untuk gambar. Di chapter berikutnya kita akan ke NLP.`,
+    concepts:[
+      {t:"Backpropagation",d:"Algoritma training neural network: hitung gradient loss terhadap weights, update weights ke arah yang kurangi loss. Ini yang 'belajar' di ML."},
+      {t:"Activation Functions",d:"ReLU (standar), Sigmoid (output binary), Softmax (output multi-class). Menambah non-linearitas agar model bisa belajar pola kompleks."},
+      {t:"CNN",d:"Convolutional Neural Network: arsitektur untuk data spasial (gambar, time series). Convolution layer mendeteksi pattern lokal seperti tepi, tekstur."},
+      {t:"Transfer Learning",d:"Pakai model pre-trained (ResNet, EfficientNet) sebagai starting point. 80% lebih cepat dan lebih akurat dari training dari scratch."}
+    ],
+    code:`<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.optim <span class="kw">as</span> optim
+<span class="kw">from</span> torchvision <span class="kw">import</span> datasets, transforms, models
+
+<span class="cm"># Transfer Learning: ResNet18 untuk klasifikasi gambar</span>
+model = models.resnet18(pretrained=<span class="kw">True</span>)
+
+<span class="cm"># Freeze semua layer kecuali layer terakhir</span>
+<span class="kw">for</span> param <span class="kw">in</span> model.parameters():
+    param.requires_grad = <span class="kw">False</span>
+
+<span class="cm"># Ganti head: 1000 class → 2 class (contoh: cat vs dog)</span>
+num_features = model.fc.in_features
+model.fc = nn.Linear(num_features, <span class="num">2</span>)
+
+<span class="cm"># Training setup</span>
+device = torch.device(<span class="str">'cuda'</span> <span class="kw">if</span> torch.cuda.is_available() <span class="kw">else</span> <span class="str">'cpu'</span>)
+model = model.to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.fc.parameters(), lr=<span class="num">0.001</span>)
+
+<span class="cm"># Training loop (1 epoch)</span>
+model.train()
+<span class="kw">for</span> images, labels <span class="kw">in</span> train_loader:
+    images, labels = images.to(device), labels.to(device)
+    optimizer.zero_grad()
+    outputs = model(images)
+    loss = criterion(outputs, labels)
+    loss.backward()
+    optimizer.step()`,
+    checklist:[
+      "Pahami konsep tensor, gradient, dan autograd PyTorch",
+      "Buat neural network sederhana (MLP) dari scratch dengan nn.Module",
+      "Implementasi training loop lengkap: forward, loss, backward, update",
+      "Load dataset CIFAR-10 dan train CNN sederhana",
+      "Gunakan Transfer Learning dengan ResNet18 pre-trained",
+      "Plot training/validation loss curve per epoch",
+      "Gunakan Google Colab GPU gratis untuk training"
+    ],
+    project:{
+      title:"Klasifikasi Sampah dengan Transfer Learning",
+      desc:"Buat model yang mengklasifikasikan foto sampah menjadi 6 kategori (kertas, plastik, kaca, metal, organik, lain-lain) menggunakan Transfer Learning.",
+      steps:[
+        "Download Garbage Classification Dataset dari Kaggle",
+        "Setup DataLoader dengan augmentasi (flip, rotate, crop)",
+        "Fine-tune EfficientNet-B0 pre-trained",
+        "Capai minimal 85% accuracy di test set",
+        "Buat fungsi inference: input foto → output kategori + confidence",
+        "Wrap jadi Gradio demo yang bisa dijalankan di browser"
+      ]
+    }
+  },
+  {
+    id:9, title:"NLP & LLM Dasar", months:"Bulan 10", emoji:"💬",
+    xp:140, color:"teal", tags:["nlp","transformers","huggingface"],
+    unlocked:false,
+    materi:`Natural Language Processing adalah salah satu bidang DS yang paling hot dan relevan sekarang. Kemampuan memahami dan bekerja dengan teks membuka banyak peluang karir. Kita langsung pakai HuggingFace Transformers — ekosistem terbesar untuk model NLP modern.
+
+Di tahun 2025–2026, pemahaman LLM dan fine-tuning menjadi skill yang sangat dicari.`,
+    concepts:[
+      {t:"Tokenization",d:"Proses memecah teks menjadi token (bisa kata, sub-kata, atau karakter). BERT pakai WordPiece, GPT pakai BPE."},
+      {t:"Embeddings",d:"Representasi teks sebagai vektor numerik. Kata yang mirip maknanya punya vektor yang dekat. Fondasi semua model NLP modern."},
+      {t:"Transformer Architecture",d:"Attention mechanism yang memungkinkan model memperhatikan bagian teks yang relevan saat memproses setiap token."},
+      {t:"Fine-tuning",d:"Ambil model pre-trained (BERT, GPT) dan latih ulang dengan data spesifik kamu. Jauh lebih efisien dari training dari nol."}
+    ],
+    code:`<span class="kw">from</span> transformers <span class="kw">import</span> pipeline, AutoTokenizer, AutoModelForSequenceClassification
+<span class="kw">import</span> torch
+
+<span class="cm"># Zero-shot classification — tanpa fine-tuning!</span>
+classifier = pipeline(<span class="str">"zero-shot-classification"</span>,
+                      model=<span class="str">"facebook/bart-large-mnli"</span>)
+
+text = <span class="str">"Harga BBM naik lagi, masyarakat mengeluh pengeluaran makin besar"</span>
+labels = [<span class="str">"ekonomi"</span>, <span class="str">"politik"</span>, <span class="str">"sosial"</span>, <span class="str">"teknologi"</span>]
+result = classifier(text, candidate_labels=labels)
+<span class="fn">print</span>(result[<span class="str">'labels'</span>][<span class="num">0</span>], <span class="str">f"({result['scores'][0]:.2%})"</span>)
+
+<span class="cm"># Sentiment analysis untuk teks Indonesia</span>
+sentiment = pipeline(<span class="str">"sentiment-analysis"</span>,
+                     model=<span class="str">"mdhugol/indonesia-bert-sentiment-classification"</span>)
+texts = [
+    <span class="str">"Produk ini sangat bagus dan memuaskan!"</span>,
+    <span class="str">"Pelayanan buruk, saya sangat kecewa"</span>,
+    <span class="str">"Biasa saja, tidak ada yang istimewa"</span>
+]
+<span class="kw">for</span> t <span class="kw">in</span> texts:
+    r = sentiment(t)[<span class="num">0</span>]
+    <span class="fn">print</span>(<span class="str">f"{r['label']:12} {r['score']:.2%} | {t[:40]}"</span>)`,
+    checklist:[
+      "Pahami arsitektur Transformer secara konseptual (tidak perlu implement dari scratch)",
+      "Gunakan HuggingFace pipeline untuk 3 task berbeda",
+      "Lakukan tokenization manual dan visualisasikan token IDs",
+      "Fine-tune BERT untuk text classification kustom",
+      "Implementasi semantic similarity dengan sentence-transformers",
+      "Buat simple RAG (Retrieval Augmented Generation) sederhana"
+    ],
+    project:{
+      title:"Analisis Sentimen Ulasan Produk Tokopedia",
+      desc:"Scrape atau gunakan dataset ulasan produk Indonesia. Bangun sistem analisis sentimen yang bisa memberi insight bisnis ke merchant.",
+      steps:[
+        "Kumpulkan 2000+ ulasan teks Indonesia (Kaggle atau scraping)",
+        "Fine-tune IndoBERT untuk 3-class sentiment (positif/netral/negatif)",
+        "Capai F1-score > 85%",
+        "Tambahkan ekstraksi aspek: apa yang dikomentari? (kualitas, harga, pengiriman)",
+        "Buat dashboard ringkasan: tren sentimen per bulan",
+        "Deploy sebagai API sederhana dengan FastAPI"
+      ]
+    }
+  },
+  {
+    id:10, title:"MLOps & Deployment", months:"Bulan 11", emoji:"🚀",
+    xp:130, color:"coral", tags:["fastapi","docker","mlflow"],
+    unlocked:false,
+    materi:`Model yang tidak di-deploy tidak memberikan nilai bisnis. MLOps adalah praktik engineering untuk membawa model dari notebook ke production. Skill ini yang membedakan DS biasa dari DS yang sangat dicari perusahaan.
+
+Kita pelajari cara membuat API dari model ML, track experiment, versioning model, dan basics containerization.`,
+    concepts:[
+      {t:"FastAPI",d:"Framework Python paling modern untuk membuat REST API. Auto-generate dokumentasi, validasi input dengan Pydantic, dan sangat cepat."},
+      {t:"MLflow",d:"Platform tracking experiment ML: catat parameters, metrics, artifacts. Bandingkan run dengan mudah. Standar industri."},
+      {t:"Docker",d:"Container: paket aplikasi + dependencies + environment menjadi satu. Berjalan konsisten di mana saja. Wajib untuk deployment."},
+      {t:"Model Monitoring",d:"Pantau performa model di production: data drift, concept drift, latency. Model yang bagus hari ini bisa degradasi bulan depan."}
+    ],
+    code:`<span class="cm"># main.py — FastAPI model serving</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">import</span> joblib
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+app = FastAPI(title=<span class="str">"Credit Scoring API"</span>, version=<span class="str">"1.0"</span>)
+
+<span class="cm"># Load model saat startup</span>
+model = joblib.load(<span class="str">"model.pkl"</span>)
+scaler = joblib.load(<span class="str">"scaler.pkl"</span>)
+
+<span class="kw">class</span> CreditInput(BaseModel):
+    age: <span class="fn">int</span>
+    income: <span class="fn">float</span>
+    loan_amount: <span class="fn">float</span>
+    employment_years: <span class="fn">int</span>
+    credit_score: <span class="fn">int</span>
+
+<span class="kw">class</span> CreditOutput(BaseModel):
+    approved: <span class="fn">bool</span>
+    probability: <span class="fn">float</span>
+    risk_level: <span class="fn">str</span>
+
+<span class="op">@</span>app.post(<span class="str">"/predict"</span>, response_model=CreditOutput)
+<span class="kw">async def</span> <span class="fn">predict</span>(data: CreditInput):
+    features = np.array([[data.age, data.income, data.loan_amount,
+                          data.employment_years, data.credit_score]])
+    scaled = scaler.transform(features)
+    prob = model.predict_proba(scaled)[<span class="num">0</span>][<span class="num">1</span>]
+    risk = <span class="str">"Low"</span> <span class="kw">if</span> prob > <span class="num">0.7</span> <span class="kw">else</span> (<span class="str">"Medium"</span> <span class="kw">if</span> prob > <span class="num">0.4</span> <span class="kw">else</span> <span class="str">"High"</span>)
+    <span class="kw">return</span> CreditOutput(approved=prob > <span class="num">0.5</span>, probability=<span class="fn">round</span>(prob, <span class="num">3</span>), risk_level=risk)`,
+    checklist:[
+      "Buat FastAPI endpoint untuk model prediction",
+      "Track experiment dengan MLflow: log params, metrics, model artifact",
+      "Simpan dan load model dengan joblib/pickle",
+      "Tulis Dockerfile sederhana untuk aplikasi ML",
+      "Deploy ke Hugging Face Spaces atau Railway (gratis)",
+      "Tambahkan health check endpoint dan basic logging"
+    ],
+    project:{
+      title:"End-to-End ML Pipeline: Churn Prediction",
+      desc:"Bangun sistem prediksi churn pelanggan lengkap dari data sampai API yang bisa dipakai tim bisnis.",
+      steps:[
+        "Train model churn prediction dengan MLflow tracking",
+        "Buat FastAPI dengan endpoint predict, batch predict, dan health",
+        "Containerize dengan Docker",
+        "Deploy ke Hugging Face Spaces (gratis)",
+        "Buat simple front-end form dengan Streamlit",
+        "Tulis README lengkap: cara install, API docs, architecture"
+      ]
+    }
+  },
+  {
+    id:11, title:"Portfolio & Job Ready", months:"Bulan 12", emoji:"💼",
+    xp:160, color:"amber", tags:["portfolio","github","interview"],
+    unlocked:false,
+    materi:`Ini chapter terakhir dan mungkin yang paling penting untuk karir kamu. Skill teknis saja tidak cukup — kamu perlu tahu cara mempresentasikan diri, membangun portfolio yang menarik recruiter, dan lolos interview DS.
+
+Kita akan build 3 portfolio project yang benar-benar bisa ditaruh di CV, plus persiapan interview teknis dan behavioral.`,
+    concepts:[
+      {t:"Portfolio Project Criteria",d:"Proyek yang bagus: punya business impact yang jelas, data realistic (bukan hanya iris/titanic), kode bersih di GitHub, dan README yang bisa dibaca orang non-teknis."},
+      {t:"GitHub Best Practices",d:"Repo yang menarik: README dengan demo GIF, clear problem statement, requirements.txt, dan organized folder structure."},
+      {t:"Interview DS",d:"Biasanya 3 tahap: SQL test, take-home case study (2–3 hari), technical interview (statistics, ML concepts, coding). Persiapkan masing-masing."},
+      {t:"Komunikasi ke Stakeholder",d:"DS yang terbaik bisa menjelaskan technical findings dalam bahasa bisnis. Latih ini dengan menulis blogpost atau presentasi."}
+    ],
+    code:`<span class="cm"># Interview prep: implementasi dari scratch</span>
+<span class="cm"># Ini yang sering ditanyakan saat live coding interview</span>
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> LinearRegressionScratch:
+    <span class="str">"""Linear regression dengan gradient descent"""</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, lr=<span class="num">0.01</span>, epochs=<span class="num">1000</span>):
+        self.lr = lr
+        self.epochs = epochs
+        self.weights = <span class="kw">None</span>
+        self.bias = <span class="num">0</span>
+
+    <span class="kw">def</span> <span class="fn">fit</span>(self, X, y):
+        n, m = X.shape
+        self.weights = np.zeros(m)
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(self.epochs):
+            y_pred = X @ self.weights + self.bias
+            dw = (<span class="num">1</span>/n) * X.T @ (y_pred - y)
+            db = (<span class="num">1</span>/n) * np.sum(y_pred - y)
+            self.weights -= self.lr * dw
+            self.bias -= self.lr * db
+
+    <span class="kw">def</span> <span class="fn">predict</span>(self, X):
+        <span class="kw">return</span> X @ self.weights + self.bias
+
+    <span class="kw">def</span> <span class="fn">r_squared</span>(self, X, y):
+        y_pred = self.predict(X)
+        ss_res = np.sum((y - y_pred)**<span class="num">2</span>)
+        ss_tot = np.sum((y - y.mean())**<span class="num">2</span>)
+        <span class="kw">return</span> <span class="num">1</span> - (ss_res / ss_tot)`,
+    checklist:[
+      "Selesaikan 3 proyek portfolio dengan README yang kuat",
+      "Optimasi profil LinkedIn: headline, about, featured projects",
+      "Latihan 50 soal SQL di HackerRank atau StrataScratch",
+      "Jawab 20 pertanyaan statistik & ML konsep secara lisan",
+      "Implementasi 5 algoritma dari scratch: LR, k-NN, k-Means, Decision Tree, PCA",
+      "Buat 1 blog post tentang salah satu proyek kamu di Medium atau LinkedIn",
+      "Apply ke 5 posisi Junior / Associate Data Scientist"
+    ],
+    project:{
+      title:"Capstone: Proyek Portfolio Utama",
+      desc:"Bangun satu proyek end-to-end yang menunjukkan semua skill: data collection → EDA → modeling → deployment → presentasi. Ini yang kamu jadikan highlight di CV.",
+      steps:[
+        "Pilih problem yang kamu pedulikan secara personal (motivasi lebih kuat)",
+        "Collect data sendiri (scraping, API) — jangan pakai Kaggle dataset umum",
+        "EDA + feature engineering yang kreatif dan insights yang non-obvious",
+        "Experiment dengan minimal 3 model, track dengan MLflow",
+        "Deploy sebagai web app dengan Streamlit atau Gradio",
+        "Tulis case study 1000 kata di LinkedIn dan publish",
+        "Present ke seseorang di luar bidang data — bisa kamu jelaskan?"
+      ]
+    }
+  }
+];
+
+const TOTAL_XP = CHAPTERS.reduce((s,c) => s+c.xp, 0);
+let state = {xp:0, completed:[], checked:{}, streak:0, lastVisit:null, activeChapter:null, activeTabs:{}};
+
+try{ const s=localStorage.getItem('dsq'); if(s) state={...state,...JSON.parse(s)}; }catch(e){}
+function save(){try{localStorage.setItem('dsq',JSON.stringify(state));}catch(e){}}
+
+function updateStreak(){
+  const today = new Date().toDateString();
+  if(state.lastVisit !== today){
+    const yesterday = new Date(Date.now()-86400000).toDateString();
+    if(state.lastVisit===yesterday) state.streak=(state.streak||0)+1;
+    else if(!state.lastVisit) state.streak=1;
+    else state.streak=1;
+    state.lastVisit=today; save();
+  }
+}
+updateStreak();
+
+function updateStats(){
+  const done = state.completed.length;
+  const pct = Math.round(done/CHAPTERS.length*100);
+  document.getElementById('statDone').textContent=done;
+  document.getElementById('statXp').textContent=state.xp;
+  document.getElementById('statStreak').textContent=state.streak;
+  document.getElementById('statPct').textContent=pct+'%';
+  const xpPct = Math.min(100,Math.round(state.xp/TOTAL_XP*100));
+  document.getElementById('xpFill').style.width=xpPct+'%';
+  document.getElementById('xpNum').textContent=state.xp+' / '+TOTAL_XP;
+  document.getElementById('streakBadge').textContent='🔥 '+state.streak+' hari';
+}
+
+function renderChapters(){
+  const list = document.getElementById('chapterList');
+  list.innerHTML='';
+  CHAPTERS.forEach((ch,i) => {
+    const unlocked = ch.unlocked || (i>0 && state.completed.includes(CHAPTERS[i-1].id));
+    const done = state.completed.includes(ch.id);
+    const isActive = state.activeChapter===ch.id;
+    const tab = state.activeTabs[ch.id]||'materi';
+    const checks = state.checked[ch.id]||{};
+    const checkDone = ch.checklist.filter((_,j)=>checks[j]).length;
+
+    const card = document.createElement('div');
+    card.className='chapter-card'+(done?' completed':'')+(isActive?' active':'')+((!unlocked&&!done)?' locked':'');
+
+    const colorMap={blue:'#4a9eff',teal:'#40c8a0',purple:'#a080f0',coral:'#f07060',amber:'#f0a830'};
+    const bgMap={blue:'#0d2040',teal:'#0a2a20',purple:'#1a1030',coral:'#2a1410',amber:'#2a1e08'};
+    const col=colorMap[ch.color]||'#888';
+    const bg=bgMap[ch.color]||'#222';
+
+    card.innerHTML=`
+      <div class="chapter-header" onclick="toggleChapter(${ch.id},${unlocked})">
+        <span class="ch-num">${String(i+1).padStart(2,'0')}</span>
+        <div class="ch-badge" style="background:${bg};color:${col}">${ch.emoji}</div>
+        <div class="ch-info">
+          <div class="ch-title">${ch.title}</div>
+          <div class="ch-meta">${ch.months} · ${ch.checklist.length} tugas · ${ch.xp} XP</div>
+        </div>
+        <div class="ch-right">
+          ${done?'<span class="ch-status done">✓ selesai</span>':unlocked?`<span class="ch-status">${checkDone}/${ch.checklist.length}</span>`:'<span class="ch-status">🔒</span>'}
+          <span class="ch-xp">+${ch.xp}xp</span>
+          ${unlocked?'<span class="ch-arrow">▶</span>':''}
+        </div>
+      </div>
+      ${unlocked?`<div class="ch-progress"><div class="ch-progress-fill" style="width:${Math.round(checkDone/ch.checklist.length*100)}%"></div></div>`:''}
+      <div class="chapter-content">
+        <div class="content-nav">
+          <button class="tab-btn ${tab==='materi'?'active':''}" onclick="switchTab(event,${ch.id},'materi')">Materi</button>
+          <button class="tab-btn ${tab==='praktek'?'active':''}" onclick="switchTab(event,${ch.id},'praktek')">⚡ Praktek</button>
+          <button class="tab-btn ${tab==='tugas'?'active':''}" onclick="switchTab(event,${ch.id},'tugas')">Checklist</button>
+          <button class="tab-btn ${tab==='proyek'?'active':''}" onclick="switchTab(event,${ch.id},'proyek')">Mini Proyek</button>
+          <button class="tab-btn ${tab==='submit'?'active':''}" onclick="switchTab(event,${ch.id},'submit')">🤖 Submit</button>
+        </div>
+        <div class="tab-panel ${tab==='materi'?'active':''}">
+          <div class="materi-section">
+            <div class="materi-h">Konsep utama</div>
+            <p class="materi-text">${ch.materi}</p>
+          </div>
+          <div class="concept-grid">
+            ${ch.concepts.map(c=>`<div class="concept-card"><div class="concept-title">${c.t}</div><div class="concept-desc">${c.d}</div></div>`).join('')}
+          </div>
+          <div style="margin-top:12px">
+            ${ch.tags.map(t=>`<span class="tag tag-${ch.color}">${t}</span>`).join('')}
+          </div>
+        </div>
+        <div class="tab-panel ${tab==='praktek'?'active':''}">
+          ${buildChallengePanel(ch)}
+        </div>
+        <div class="tab-panel ${tab==='tugas'?'active':''}">
+          <div class="materi-section">
+            <div class="materi-h">Selesaikan semua untuk lanjut ke chapter berikutnya</div>
+          </div>
+          <ul class="checklist">
+            ${ch.checklist.map((item,j)=>`
+              <li class="check-item ${checks[j]?'checked':''}" onclick="toggleCheck(${ch.id},${j})">
+                <div class="check-box"><span class="check-mark">✓</span></div>
+                <span class="check-text">${item}</span>
+              </li>`).join('')}
+          </ul>
+        </div>
+        <div class="tab-panel ${tab==='proyek'?'active':''}">
+          <div class="project-box">
+            <div class="project-tag">🏗 Mini Proyek</div>
+            <div class="project-title">${ch.project.title}</div>
+            <p class="project-desc">${ch.project.desc}</p>
+            <ul class="project-steps">
+              ${ch.project.steps.map(s=>`<li class="project-step">${s}</li>`).join('')}
+            </ul>
+            ${!done?`<button class="complete-btn" onclick="completeChapter(${ch.id})">Selesai & Klaim ${ch.xp} XP ↗</button>`:'<div style="font-size:12px;color:var(--teal);margin-top:14px">✓ Chapter ini sudah selesai</div>'}
+          </div>
+        </div>
+        <div class="tab-panel ${tab==='submit'?'active':''}">
+          ${buildSubmitPanel(ch)}
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+  updateStats();
+  updateTodayBar();
+}
+
+function updateTodayBar(){
+  const next = CHAPTERS.find(ch=>!state.completed.includes(ch.id));
+  if(next){
+    const unlocked = next.unlocked || (CHAPTERS.indexOf(next)>0 && state.completed.includes(CHAPTERS[CHAPTERS.indexOf(next)-1].id));
+    document.getElementById('todayChapter').textContent = unlocked ? next.title : 'Selesaikan chapter sebelumnya dulu';
+  } else {
+    document.getElementById('todayChapter').textContent = '🎉 Semua chapter selesai!';
+  }
+}
+
+function toggleChapter(id, unlocked){
+  if(!unlocked) return;
+  state.activeChapter = state.activeChapter===id ? null : id;
+  save(); renderChapters();
+}
+
+function switchTab(e,id,tab){
+  e.stopPropagation();
+  state.activeTabs[id]=tab;
+  save(); renderChapters();
+}
+
+function toggleCheck(chId,idx){
+  if(!state.checked[chId]) state.checked[chId]={};
+  state.checked[chId][idx]=!state.checked[chId][idx];
+  save(); renderChapters();
+}
+
+function completeChapter(id){
+  if(state.completed.includes(id)) return;
+  const ch = CHAPTERS.find(c=>c.id===id);
+  state.completed.push(id);
+  state.xp += ch.xp;
+  save(); renderChapters();
+}
+
+function copyCode(btn){
+  const pre = btn.parentElement.querySelector('pre');
+  const text = pre.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='copied!'; btn.style.color='var(--teal)';
+    setTimeout(()=>{btn.textContent='copy';btn.style.color='';},2000);
+  });
+}
+
+// ===== AUTO-KOREKSI SYSTEM =====
+
+function getChapterTypes(ch) {
+  const tags = ch.tags || [];
+  const types = [];
+  if (tags.includes('sql') || ch.id === 7) types.push({id:'sql', label:'SQL Query', icon:'🗄'});
+  if (tags.includes('matplotlib') || tags.includes('seaborn') || tags.includes('plotly') || ch.id === 4) {
+    types.push({id:'viz', label:'Visualisasi (.ipynb/.py/.png)', icon:'📊'});
+  }
+  if (!types.length || tags.some(t=>['python','numpy','pandas','sklearn','pytorch','transformers','fastapi','xgboost'].includes(t))) {
+    if (!types.find(t=>t.id==='python')) types.push({id:'python', label:'Kode Python (.py/.ipynb)', icon:'🐍'});
+  }
+  return types;
+}
+
+function buildSubmitPanel(ch) {
+  const types = getChapterTypes(ch);
+  const submissions = (state.submissions || {})[ch.id] || [];
+  const typeButtons = types.map((t,i) =>
+    `<button class="type-pill${i===0?' active':''}" onclick="selectType(${ch.id}, this, '${t.id}')">${t.icon} ${t.label}</button>`
+  ).join('');
+
+  const pastHTML = submissions.length > 0 ? `
+    <div class="past-submissions">
+      <div class="past-title">Riwayat Submission</div>
+      ${submissions.slice(-3).reverse().map(s => {
+        const col = s.score >= 85 ? 'var(--teal)' : s.score >= 70 ? 'var(--accent)' : s.score >= 55 ? 'var(--amber)' : 'var(--coral)';
+        return `<div class="past-item">
+          <span class="past-score-badge" style="background:${col}22;color:${col}">${s.score}/100</span>
+          <span class="past-info">${s.type.toUpperCase()} · ${s.fileName}</span>
+          <span class="past-type">${new Date(s.ts).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</span>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+  return `<div class="submit-zone" id="submit-zone-${ch.id}">
+    <div class="submit-header">
+      <div class="submit-title">🤖 Auto-Koreksi Proyek</div>
+      <div class="submit-sub">Upload file proyekmu — AI akan menilai kode, memberi skor 0–100, dan saran perbaikan spesifik.</div>
+    </div>
+    <div class="submit-type-row" id="type-row-${ch.id}">${typeButtons}</div>
+    <div class="drop-zone" id="dz-${ch.id}"
+      onclick="document.getElementById('file-input-${ch.id}').click()"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleDrop(event,${ch.id})">
+      <div class="drop-icon">📁</div>
+      <div class="drop-text">Klik atau drag &amp; drop file di sini</div>
+      <div class="drop-hint">.py · .ipynb · .sql · .txt · .png</div>
+      <div class="drop-file-name" id="dfn-${ch.id}"></div>
+    </div>
+    <input type="file" id="file-input-${ch.id}" style="display:none"
+      accept=".py,.ipynb,.sql,.txt,.png,.jpg,.jpeg"
+      onchange="handleFileSelect(event,${ch.id})">
+    <div class="or-divider">atau paste kode langsung</div>
+    <textarea class="paste-area" id="paste-${ch.id}"
+      placeholder="Paste kode Python / SQL kamu di sini..."></textarea>
+    <button class="submit-btn" id="sbtn-${ch.id}" onclick="submitProject(${ch.id})">
+      Koreksi Sekarang →
+    </button>
+    <div class="ai-loading" id="loading-${ch.id}">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">AI sedang menganalisis proyekmu<span class="loading-dots"></span></div>
+    </div>
+    <div class="result-panel" id="result-${ch.id}"></div>
+    ${pastHTML}
+  </div>`;
+}
+
+const activeTypes = {};
+const pendingFiles = {};
+
+function selectType(chId, btn, typeId) {
+  activeTypes[chId] = typeId;
+  const row = document.getElementById('type-row-' + chId);
+  if (row) row.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function handleFileSelect(evt, chId) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  pendingFiles[chId] = file;
+  const fn = document.getElementById('dfn-' + chId);
+  if (fn) { fn.textContent = '✓ ' + file.name; fn.style.display = 'block'; }
+}
+
+function handleDrop(evt, chId) {
+  evt.preventDefault();
+  const dz = document.getElementById('dz-' + chId);
+  if (dz) dz.classList.remove('drag-over');
+  const file = evt.dataTransfer.files[0];
+  if (!file) return;
+  pendingFiles[chId] = file;
+  const fn = document.getElementById('dfn-' + chId);
+  if (fn) { fn.textContent = '✓ ' + file.name; fn.style.display = 'block'; }
+}
+
+function readFileAsText(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file);
+  });
+}
+function readFileAsBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader(); r.onload = e => res(e.target.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(file);
+  });
+}
+
+function escapeHtml(t) {
+  return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function submitProject(chId) {
+  const ch = CHAPTERS.find(c => c.id === chId);
+  if (!ch) return;
+  const pasteEl = document.getElementById('paste-' + chId);
+  const file = pendingFiles[chId];
+  const pastedCode = pasteEl ? pasteEl.value.trim() : '';
+  if (!file && !pastedCode) { alert('Upload file atau paste kode dulu ya!'); return; }
+
+  const typeId = activeTypes[chId] || getChapterTypes(ch)[0]?.id || 'python';
+  const btn = document.getElementById('sbtn-' + chId);
+  const loadingEl = document.getElementById('loading-' + chId);
+  const resultEl = document.getElementById('result-' + chId);
+
+  btn.disabled = true;
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (resultEl) resultEl.classList.remove('show');
+
+  try {
+    let fileContent = '', fileName = 'paste', isImage = false, imageBase64 = '', imageMediaType = '';
+    if (file) {
+      fileName = file.name;
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (['png','jpg','jpeg'].includes(ext)) {
+        isImage = true;
+        imageBase64 = await readFileAsBase64(file);
+        imageMediaType = ext === 'png' ? 'image/png' : 'image/jpeg';
+        fileContent = '[File gambar: ' + file.name + ']';
+      } else {
+        fileContent = await readFileAsText(file);
+        if (ext === 'ipynb') {
+          try {
+            const nb = JSON.parse(fileContent);
+            fileContent = (nb.cells||[]).filter(c=>c.cell_type==='code').map(c=>(c.source||[]).join('')).join('\n\n# --- cell ---\n\n');
+          } catch(e) {}
+        }
+      }
+    } else { fileContent = pastedCode; }
+
+    const projectCtx = `Chapter: ${ch.title}\nMini Proyek: ${ch.project.title}\nDeskripsi: ${ch.project.desc}\nLangkah:\n${ch.project.steps.map((s,i)=>`${i+1}. ${s}`).join('\n')}\nChecklist:\n${ch.checklist.map((c,i)=>`${i+1}. ${c}`).join('\n')}\nTipe: ${typeId.toUpperCase()}`;
+
+    let userContent;
+    if (isImage) {
+      userContent = [{type:'image',source:{type:'base64',media_type:imageMediaType,data:imageBase64}},{type:'text',text:`Ini visualisasi/chart dari proyek:\n${projectCtx}\n\nEvaluasi visualisasi ini.`}];
+    } else {
+      userContent = `Kode proyek siswa:\n\nFile: ${fileName}\n\`\`\`\n${fileContent.slice(0,8000)}\n\`\`\`\n\nKonteks:\n${projectCtx}`;
+    }
+
+    const systemPrompt = `Kamu adalah tutor Data Science yang menilai proyek siswa dalam bahasa Indonesia. Evaluasi secara konstruktif dan spesifik.
+
+Balas HANYA dengan JSON ini (tanpa markdown):
+{"score":<0-100>,"verdict":"<max 8 kata>","one_line":"<satu kalimat ringkasan>","strengths":["<hal bagus 1>","<hal bagus 2>"],"improvements":["<saran 1>","<saran 2>","<saran 3>"],"code_fix":"<snippet perbaikan kode jika ada, string kosong jika tidak>","next_step":"<satu langkah konkret selanjutnya>"}
+
+Scoring: 90-100 excellent, 75-89 good, 60-74 cukup, 40-59 perlu perbaikan, <40 belum memenuhi syarat.
+Untuk visualisasi: nilai jenis chart, label, judul, keterbacaan. Untuk SQL: syntax, efisiensi, window function. Untuk Python: struktur, best practices, kelengkapan.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:userContent}]})
+    });
+    const data = await resp.json();
+    const rawText = (data.content||[]).map(b=>b.text||'').join('');
+    const result = JSON.parse(rawText.replace(/```json|```/g,'').trim());
+
+    if (!state.submissions) state.submissions = {};
+    if (!state.submissions[chId]) state.submissions[chId] = [];
+    state.submissions[chId].push({score:result.score,type:typeId,fileName,ts:Date.now()});
+    save();
+
+    const s = result.score;
+    const scoreClass = s>=85?'score-excellent':s>=70?'score-good':s>=55?'score-mid':'score-low';
+    const strengthsHTML = (result.strengths||[]).map(t=>`<div class="result-item"><div class="result-dot green"></div><div class="result-item-text">${escapeHtml(t)}</div></div>`).join('');
+    const improvHTML = (result.improvements||[]).map(t=>`<div class="result-item"><div class="result-dot amber"></div><div class="result-item-text">${escapeHtml(t)}</div></div>`).join('');
+    const codeFix = result.code_fix ? `<div class="code-suggestion">${escapeHtml(result.code_fix)}</div>` : '';
+    const nextStep = result.next_step ? `<div class="result-section"><div class="result-section-title blue">🧭 Langkah Selanjutnya</div><div class="result-item"><div class="result-dot blue"></div><div class="result-item-text">${escapeHtml(result.next_step)}</div></div></div>` : '';
+    const canClaim = s >= 60 && !state.completed.includes(chId);
+    const alreadyDone = state.completed.includes(chId);
+
+    resultEl.innerHTML = `
+      <div class="result-header">
+        <div class="score-circle ${scoreClass}"><div class="score-num">${s}</div><div class="score-label">/ 100</div></div>
+        <div class="result-summary"><div class="result-verdict">${escapeHtml(result.verdict||'')}</div><div class="result-one-line">${escapeHtml(result.one_line||'')}</div></div>
+      </div>
+      <div class="result-body">
+        ${strengthsHTML?`<div class="result-section"><div class="result-section-title green">✅ Yang Sudah Bagus</div>${strengthsHTML}</div>`:''}
+        ${improvHTML?`<div class="result-section"><div class="result-section-title amber">⚡ Saran Perbaikan</div>${improvHTML}${codeFix}</div>`:''}
+        ${nextStep}
+        ${canClaim?`<button class="claim-xp-btn" onclick="completeChapter(${chId});this.textContent='✓ XP Diklaim!';this.disabled=true">🎉 Klaim ${ch.xp} XP — Proyek Selesai!</button>`:''}
+        ${alreadyDone?`<div style="font-size:12px;color:var(--teal);padding:8px 0">✓ Chapter sudah selesai — XP sudah diklaim</div>`:''}
+        ${s<60&&!alreadyDone?`<div style="font-size:11px;color:var(--text3);padding:8px 0">Butuh skor ≥ 60 untuk klaim XP. Perbaiki dan submit ulang!</div>`:''}
+      </div>`;
+    resultEl.classList.add('show');
+
+  } catch(err) {
+    console.error(err);
+    if (resultEl) { resultEl.innerHTML=`<div style="padding:16px;font-size:12px;color:var(--coral)">⚠ Error: ${escapeHtml(err.message)}. Coba lagi.</div>`; resultEl.classList.add('show'); }
+  } finally {
+    if (loadingEl) loadingEl.style.display = 'none';
+    btn.disabled = false;
+  }
+}
+
+// ===== INTERACTIVE CODING CHALLENGES =====
+
+const CHALLENGES = {
+  1: [ // Python untuk Data Science
+    {
+      id: 'ch1_q1',
+      title: 'Buat NumPy Array & Hitung Statistik',
+      desc: 'Buat sebuah NumPy array bernama <code>nilai</code> berisi angka <code>[72, 85, 90, 68, 95, 78, 88]</code>, lalu print rata-ratanya menggunakan method <code>.mean()</code>.',
+      expected: 'Output harus menampilkan angka rata-rata array tersebut (82.28...).',
+      starterCode: `import numpy as np
+
+# Buat array 'nilai' dengan angka: 72, 85, 90, 68, 95, 78, 88
+nilai = 
+
+# Print rata-rata
+print(nilai.mean())`,
+      solution: `import numpy as np\nnilai = np.array([72, 85, 90, 68, 95, 78, 88])\nprint(nilai.mean())`,
+      tests: [
+        { label: 'Array `nilai` dibuat dengan np.array()', check: code => code.includes('np.array') && code.includes('nilai') },
+        { label: 'Menggunakan .mean() untuk rata-rata', check: code => code.includes('.mean()') },
+        { label: 'Output rata-rata benar (~82.28)', checkOutput: out => parseFloat(out) > 82 && parseFloat(out) < 83 }
+      ],
+      hints: [
+        'Gunakan <code>np.array([...])</code> untuk membuat array dari list.',
+        'Simpan ke variabel <code>nilai</code>, lalu panggil <code>nilai.mean()</code>.',
+        'Kode lengkap: <code>nilai = np.array([72, 85, 90, 68, 95, 78, 88])</code>'
+      ]
+    },
+    {
+      id: 'ch1_q2',
+      title: 'Filter DataFrame dengan Boolean Indexing',
+      desc: 'Diberikan DataFrame <code>df</code> dengan kolom <code>nama</code> dan <code>skor</code>. Filter dan print hanya baris yang <code>skor</code>-nya lebih dari <code>80</code>.',
+      expected: 'Output DataFrame hanya berisi baris dengan skor > 80 (Budi 92, Dewi 95).',
+      starterCode: `import pandas as pd
+
+df = pd.DataFrame({
+    'nama': ['Andi', 'Budi', 'Citra', 'Dewi'],
+    'skor': [75, 92, 68, 95]
+})
+
+# Filter baris dengan skor > 80
+hasil = 
+
+print(hasil)`,
+      solution: `import pandas as pd\ndf = pd.DataFrame({'nama':['Andi','Budi','Citra','Dewi'],'skor':[75,92,68,95]})\nhasil = df[df['skor'] > 80]\nprint(hasil)`,
+      tests: [
+        { label: 'Menggunakan boolean indexing df[df[...]]', check: code => /df\[df\[/.test(code) },
+        { label: "Kondisi skor > 80", check: code => code.includes('> 80') || code.includes('>80') },
+        { label: 'Output hanya 2 baris (Budi & Dewi)', checkOutput: out => out.includes('Budi') && out.includes('Dewi') && !out.includes('Andi') && !out.includes('Citra') }
+      ],
+      hints: [
+        'Boolean indexing: <code>df[kondisi]</code> — kondisi adalah kolom yang dibandingkan.',
+        'Akses kolom: <code>df["skor"]</code>, lalu bandingkan: <code>df["skor"] > 80</code>.',
+        'Gabungkan: <code>hasil = df[df["skor"] > 80]</code>'
+      ]
+    },
+    {
+      id: 'ch1_q3',
+      title: 'GroupBy & Agregasi',
+      desc: 'Gunakan DataFrame <code>df</code> yang sudah tersedia. Hitung rata-rata <code>skor</code> per <code>kota</code> menggunakan <code>groupby</code> dan print hasilnya.',
+      expected: 'Output: rata-rata skor per kota (Bandung: 93.5, Jakarta: 75, Surabaya: 68).',
+      starterCode: `import pandas as pd
+
+df = pd.DataFrame({
+    'nama': ['Andi', 'Budi', 'Citra', 'Dewi'],
+    'skor': [75, 92, 68, 95],
+    'kota': ['Jakarta', 'Bandung', 'Surabaya', 'Bandung']
+})
+
+# Hitung rata-rata skor per kota
+hasil = 
+
+print(hasil)`,
+      solution: `import pandas as pd\ndf = pd.DataFrame({'nama':['Andi','Budi','Citra','Dewi'],'skor':[75,92,68,95],'kota':['Jakarta','Bandung','Surabaya','Bandung']})\nhasil = df.groupby('kota')['skor'].mean()\nprint(hasil)`,
+      tests: [
+        { label: 'Menggunakan .groupby()', check: code => code.includes('groupby') },
+        { label: "Agregasi kolom 'skor'", check: code => code.includes("'skor'") || code.includes('"skor"') },
+        { label: 'Menggunakan .mean() untuk rata-rata', check: code => code.includes('.mean()') }
+      ],
+      hints: [
+        'Syntax groupby: <code>df.groupby("kolom_grup")["kolom_nilai"].fungsi()</code>.',
+        'Grup berdasarkan kota: <code>df.groupby("kota")</code>.',
+        'Lengkap: <code>df.groupby("kota")["skor"].mean()</code>'
+      ]
+    }
+  ],
+  2: [ // EDA & Data Cleaning
+    {
+      id: 'ch2_q1',
+      title: 'Deteksi Missing Values',
+      desc: 'Diberikan DataFrame <code>df</code> dengan beberapa nilai <code>NaN</code>. Hitung jumlah missing values per kolom dan print hasilnya. Gunakan <code>.isnull().sum()</code>.',
+      expected: 'Output: jumlah NaN per kolom. Kolom "umur" punya 2 NaN, kolom "gaji" punya 1 NaN.',
+      starterCode: `import pandas as pd
+import numpy as np
+
+df = pd.DataFrame({
+    'nama': ['Andi', 'Budi', 'Citra', 'Dewi', 'Eko'],
+    'umur': [25, np.nan, 30, np.nan, 28],
+    'gaji': [5000000, 7000000, np.nan, 8000000, 6000000]
+})
+
+# Hitung missing values per kolom
+missing = 
+
+print(missing)`,
+      solution: `import pandas as pd\nimport numpy as np\ndf = pd.DataFrame({'nama':['Andi','Budi','Citra','Dewi','Eko'],'umur':[25,np.nan,30,np.nan,28],'gaji':[5000000,7000000,np.nan,8000000,6000000]})\nmissing = df.isnull().sum()\nprint(missing)`,
+      tests: [
+        { label: 'Menggunakan .isnull()', check: code => code.includes('.isnull()') },
+        { label: 'Menggunakan .sum() untuk menghitung', check: code => code.includes('.sum()') },
+        { label: 'Output menampilkan jumlah NaN per kolom', checkOutput: out => out.includes('2') && out.includes('1') }
+      ],
+      hints: [
+        '<code>.isnull()</code> menghasilkan DataFrame boolean (True kalau NaN).',
+        'Tambahkan <code>.sum()</code> untuk menjumlahkan True per kolom.',
+        'Lengkap: <code>missing = df.isnull().sum()</code>'
+      ]
+    },
+    {
+      id: 'ch2_q2',
+      title: 'Isi Missing Values dengan Median',
+      desc: 'Isi nilai NaN pada kolom <code>umur</code> dengan median dari kolom tersebut menggunakan <code>.fillna()</code> dan <code>.median()</code>. Print DataFrame setelah diisi.',
+      expected: 'Tidak ada NaN di kolom umur setelah di-fill. Nilai NaN diganti dengan median (28.0).',
+      starterCode: `import pandas as pd
+import numpy as np
+
+df = pd.DataFrame({
+    'nama': ['Andi', 'Budi', 'Citra', 'Dewi', 'Eko'],
+    'umur': [25, np.nan, 30, np.nan, 28],
+})
+
+# Hitung median kolom umur
+median_umur = df['umur'].median()
+
+# Isi NaN dengan median (simpan ke df['umur'])
+df['umur'] = 
+
+print(df)
+print("\\nMissing setelah fill:", df['umur'].isnull().sum())`,
+      solution: `import pandas as pd\nimport numpy as np\ndf = pd.DataFrame({'nama':['Andi','Budi','Citra','Dewi','Eko'],'umur':[25,np.nan,30,np.nan,28]})\nmedian_umur = df['umur'].median()\ndf['umur'] = df['umur'].fillna(median_umur)\nprint(df)\nprint("\\nMissing setelah fill:", df['umur'].isnull().sum())`,
+      tests: [
+        { label: 'Menggunakan .fillna()', check: code => code.includes('.fillna(') },
+        { label: 'Fill dengan median (bukan angka hardcode)', check: code => code.includes('median') },
+        { label: 'Tidak ada NaN tersisa (output: 0)', checkOutput: out => out.includes('Missing setelah fill: 0') }
+      ],
+      hints: [
+        '<code>.fillna(nilai)</code> mengganti semua NaN dengan nilai yang diberikan.',
+        'Hitung median dulu: <code>median_umur = df["umur"].median()</code>.',
+        'Lalu: <code>df["umur"] = df["umur"].fillna(median_umur)</code>'
+      ]
+    }
+  ],
+  3: [ // Statistik
+    {
+      id: 'ch3_q1',
+      title: 'Hitung Z-Score Manual',
+      desc: 'Hitung Z-score untuk setiap nilai dalam array <code>data</code>. Z-score = (nilai - mean) / std. Gunakan NumPy dan print hasilnya rounded 2 desimal.',
+      expected: 'Output: array Z-score. Nilai 100 harusnya Z-score positif tinggi, nilai 60 negatif.',
+      starterCode: `import numpy as np
+
+data = np.array([60, 70, 80, 85, 90, 95, 100])
+
+# Hitung mean dan std
+mean = data.mean()
+std = data.std()
+
+# Hitung z-score untuk setiap nilai
+z_scores = 
+
+print(np.round(z_scores, 2))`,
+      solution: `import numpy as np\ndata = np.array([60,70,80,85,90,95,100])\nmean = data.mean()\nstd = data.std()\nz_scores = (data - mean) / std\nprint(np.round(z_scores, 2))`,
+      tests: [
+        { label: 'Formula z-score: (data - mean) / std', check: code => code.includes('mean') && code.includes('std') && (code.includes('data - mean') || code.includes('data-mean')) },
+        { label: 'Dibagi dengan std', check: code => code.includes('/ std') || code.includes('/std') },
+        { label: 'Output adalah array z-score', checkOutput: out => out.includes('-') && out.includes('[') }
+      ],
+      hints: [
+        'Z-score formula: <code>(nilai - mean) / standar_deviasi</code>.',
+        'NumPy mendukung operasi per-elemen: <code>(data - mean)</code> langsung bekerja untuk semua elemen.',
+        'Lengkap: <code>z_scores = (data - mean) / std</code>'
+      ]
+    },
+    {
+      id: 'ch3_q2',
+      title: 'Hitung Korelasi Pearson',
+      desc: 'Hitung korelasi antara dua variabel <code>jam_belajar</code> dan <code>nilai_ujian</code> menggunakan <code>np.corrcoef()</code>. Print nilai korelasinya (scalar, bukan matrix).',
+      expected: 'Output: satu angka korelasi antara -1 dan 1 (harusnya positif dan tinggi).',
+      starterCode: `import numpy as np
+
+jam_belajar = np.array([2, 3, 4, 5, 6, 7, 8])
+nilai_ujian = np.array([55, 62, 70, 75, 82, 88, 94])
+
+# Hitung correlation matrix
+corr_matrix = np.corrcoef(jam_belajar, nilai_ujian)
+
+# Ambil nilai korelasi (bukan seluruh matrix) — index [0,1] atau [1,0]
+korelasi = 
+
+print(f"Korelasi: {korelasi:.4f}")`,
+      solution: `import numpy as np\njam_belajar = np.array([2,3,4,5,6,7,8])\nnilai_ujian = np.array([55,62,70,75,82,88,94])\ncorr_matrix = np.corrcoef(jam_belajar, nilai_ujian)\nkorelasi = corr_matrix[0,1]\nprint(f"Korelasi: {korelasi:.4f}")`,
+      tests: [
+        { label: 'Menggunakan np.corrcoef()', check: code => code.includes('np.corrcoef') },
+        { label: 'Mengambil nilai scalar dari matrix [0,1]', check: code => code.includes('[0,1]') || code.includes('[0][1]') || code.includes('[1,0]') },
+        { label: 'Output korelasi > 0.99 (sangat tinggi)', checkOutput: out => { const m = out.match(/[\d.]+/); return m && parseFloat(m[0]) > 0.99; } }
+      ],
+      hints: [
+        '<code>np.corrcoef(a, b)</code> menghasilkan 2x2 matrix. Diagonal adalah korelasi diri sendiri (=1).',
+        'Korelasi antara a dan b ada di <code>[0,1]</code> atau <code>[1,0]</code> dari matrix.',
+        'Lengkap: <code>korelasi = corr_matrix[0,1]</code>'
+      ]
+    }
+  ],
+  4: [ // Visualisasi
+    {
+      id: 'ch4_q1',
+      title: 'Buat Bar Chart Sederhana',
+      desc: 'Buat bar chart dari data penjualan produk. Set judul chart menjadi <code>"Penjualan per Produk"</code> dan label sumbu X menjadi <code>"Produk"</code>, sumbu Y menjadi <code>"Penjualan (juta)"</code>. Simpan ke <code>penjualan.png</code>.',
+      expected: 'File penjualan.png tersimpan. Bar chart dengan 4 bar (A,B,C,D), ada judul dan label axis.',
+      starterCode: `import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+produk = ['Produk A', 'Produk B', 'Produk C', 'Produk D']
+penjualan = [45, 72, 38, 95]
+
+# Buat figure dan bar chart
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.bar(produk, penjualan, color='steelblue')
+
+# Set judul dan label axis
+ax.set_title(   )
+ax.set_xlabel(  )
+ax.set_ylabel(  )
+
+plt.tight_layout()
+plt.savefig('penjualan.png')
+print("Chart tersimpan: penjualan.png")`,
+      solution: `import matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nproduk = ['Produk A','Produk B','Produk C','Produk D']\npenjualan = [45,72,38,95]\nfig, ax = plt.subplots(figsize=(8,5))\nax.bar(produk, penjualan, color='steelblue')\nax.set_title("Penjualan per Produk")\nax.set_xlabel("Produk")\nax.set_ylabel("Penjualan (juta)")\nplt.tight_layout()\nplt.savefig('penjualan.png')\nprint("Chart tersimpan: penjualan.png")`,
+      tests: [
+        { label: 'Menggunakan ax.bar() untuk bar chart', check: code => code.includes('.bar(') },
+        { label: 'Set judul dengan set_title()', check: code => code.includes('set_title') },
+        { label: 'Set label axis X dan Y', check: code => code.includes('set_xlabel') && code.includes('set_ylabel') },
+        { label: 'Output: "Chart tersimpan"', checkOutput: out => out.includes('Chart tersimpan') }
+      ],
+      hints: [
+        'Isi <code>ax.set_title("...")</code> dengan string judul chart.',
+        'Label axis: <code>ax.set_xlabel("Produk")</code> dan <code>ax.set_ylabel("Penjualan (juta)")</code>.',
+        'Pastikan string persis sama dengan yang diminta (case-sensitive).'
+      ]
+    },
+    {
+      id: 'ch4_q2',
+      title: 'Buat Line Chart dengan Rolling Average',
+      desc: 'Plot data penjualan harian sebagai line chart biru (<code>label="Harian"</code>). Tambahkan moving average 3-hari menggunakan <code>pd.Series.rolling(3).mean()</code> sebagai line merah (<code>label="MA 3 hari"</code>). Tambahkan legend.',
+      expected: 'Dua garis: data harian (biru) dan moving average (merah), dengan legend.',
+      starterCode: `import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import pandas as pd
+
+hari = list(range(1, 11))
+penjualan = [30, 45, 38, 52, 49, 65, 58, 70, 63, 80]
+
+s = pd.Series(penjualan)
+
+# Hitung rolling average 3 hari
+ma3 = 
+
+fig, ax = plt.subplots(figsize=(9, 4))
+
+# Plot data harian — warna biru, label 'Harian'
+ax.plot(hari, penjualan, color='blue', label='Harian')
+
+# Plot MA 3 hari — warna merah, label 'MA 3 hari'
+
+
+ax.legend()
+ax.set_title('Penjualan Harian + Moving Average')
+plt.savefig('line_chart.png')
+print("OK - dua garis diplot")`,
+      solution: `import matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nimport pandas as pd\nhari = list(range(1,11))\npenjualan = [30,45,38,52,49,65,58,70,63,80]\ns = pd.Series(penjualan)\nma3 = s.rolling(3).mean()\nfig, ax = plt.subplots(figsize=(9,4))\nax.plot(hari, penjualan, color='blue', label='Harian')\nax.plot(hari, ma3, color='red', label='MA 3 hari')\nax.legend()\nax.set_title('Penjualan Harian + Moving Average')\nplt.savefig('line_chart.png')\nprint("OK - dua garis diplot")`,
+      tests: [
+        { label: 'Menghitung rolling(3).mean()', check: code => code.includes('rolling(3)') && code.includes('.mean()') },
+        { label: 'Plot MA dengan warna merah', check: code => code.includes("color='red'") || code.includes('color="red"') },
+        { label: 'Menambahkan legend', check: code => code.includes('.legend()') },
+        { label: 'Output: "OK - dua garis diplot"', checkOutput: out => out.includes('OK') }
+      ],
+      hints: [
+        '<code>pd.Series(data).rolling(n).mean()</code> menghitung moving average n periode.',
+        'Plot garis kedua: <code>ax.plot(hari, ma3, color="red", label="MA 3 hari")</code>.',
+        'Jangan lupa <code>ax.legend()</code> setelah semua plot.'
+      ]
+    }
+  ],
+  5: [ // Machine Learning
+    {
+      id: 'ch5_q1',
+      title: 'Train-Test Split yang Benar',
+      desc: 'Bagi dataset X dan y menjadi train/test dengan rasio 80/20, gunakan <code>random_state=42</code> dan <code>stratify=y</code> untuk menjaga proporsi kelas. Print ukuran masing-masing set.',
+      expected: 'Output: ukuran X_train, X_test, y_train, y_test. X_train harusnya 80% dari total data.',
+      starterCode: `from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+import numpy as np
+
+X, y = load_iris(return_X_y=True)
+print(f"Total data: {X.shape[0]}")
+
+# Split 80/20 dengan random_state=42 dan stratify=y
+X_train, X_test, y_train, y_test = train_test_split(
+    
+)
+
+print(f"X_train: {X_train.shape[0]} samples")
+print(f"X_test:  {X_test.shape[0]} samples")
+print(f"Proporsi kelas test: {np.bincount(y_test)}")`,
+      solution: `from sklearn.model_selection import train_test_split\nfrom sklearn.datasets import load_iris\nimport numpy as np\nX, y = load_iris(return_X_y=True)\nprint(f"Total data: {X.shape[0]}")\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)\nprint(f"X_train: {X_train.shape[0]} samples")\nprint(f"X_test:  {X_test.shape[0]} samples")\nprint(f"Proporsi kelas test: {np.bincount(y_test)}")`,
+      tests: [
+        { label: 'test_size=0.2 (80/20 split)', check: code => code.includes('test_size=0.2') || code.includes('test_size = 0.2') },
+        { label: 'random_state=42', check: code => code.includes('random_state=42') },
+        { label: 'stratify=y untuk menjaga proporsi kelas', check: code => code.includes('stratify=y') },
+        { label: 'X_train: 120 samples (80% dari 150)', checkOutput: out => out.includes('120') }
+      ],
+      hints: [
+        '<code>train_test_split(X, y, test_size=..., random_state=..., stratify=...)</code>.',
+        '<code>stratify=y</code> memastikan proporsi kelas sama di train dan test.',
+        'Lengkap: <code>train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)</code>'
+      ]
+    },
+    {
+      id: 'ch5_q2',
+      title: 'Evaluasi Model dengan Classification Report',
+      desc: 'Train model Logistic Regression pada data Iris, prediksi test set, lalu print <code>classification_report</code>. Perhatikan nilai precision, recall, dan F1-score.',
+      expected: 'Output classification_report dengan precision, recall, F1 per kelas. Accuracy harusnya > 95%.',
+      starterCode: `from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.preprocessing import StandardScaler
+
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+# Normalisasi data
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Buat dan train model Logistic Regression (max_iter=200)
+model = 
+model.fit(     )
+
+# Prediksi
+y_pred = 
+
+# Print classification report
+print(classification_report(    ))`,
+      solution: `from sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import classification_report\nfrom sklearn.preprocessing import StandardScaler\nX, y = load_iris(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)\nscaler = StandardScaler()\nX_train = scaler.fit_transform(X_train)\nX_test = scaler.transform(X_test)\nmodel = LogisticRegression(max_iter=200)\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\nprint(classification_report(y_test, y_pred))`,
+      tests: [
+        { label: 'Membuat LogisticRegression', check: code => code.includes('LogisticRegression') },
+        { label: 'model.fit() dengan training data', check: code => code.includes('model.fit') },
+        { label: 'model.predict() untuk prediksi', check: code => code.includes('model.predict') },
+        { label: 'classification_report dengan y_test dan y_pred', check: code => code.includes('classification_report') && (code.includes('y_test') && code.includes('y_pred')) }
+      ],
+      hints: [
+        'Buat model: <code>model = LogisticRegression(max_iter=200)</code>.',
+        'Train: <code>model.fit(X_train, y_train)</code>.',
+        'Predict: <code>y_pred = model.predict(X_test)</code>, lalu report: <code>classification_report(y_test, y_pred)</code>.'
+      ]
+    }
+  ],
+  7: [ // SQL
+    {
+      id: 'ch7_q1',
+      title: 'Query GROUP BY dengan HAVING',
+      desc: 'Tulis SQL query untuk menghitung total order per customer, lalu filter hanya customer yang punya lebih dari 2 order. Tampilkan <code>customer_id</code> dan <code>total_order</code>, urutkan dari terbanyak.',
+      expected: 'Query valid: GROUP BY customer_id, COUNT(*) AS total_order, HAVING COUNT(*) > 2, ORDER BY total_order DESC.',
+      starterCode: `-- Tabel: orders(order_id, customer_id, amount, order_date)
+-- Tulis query yang sesuai
+
+SELECT 
+    customer_id,
+    COUNT(*) AS total_order
+FROM orders
+-- Group per customer
+
+-- Filter yang punya lebih dari 2 order
+
+-- Urutkan dari terbanyak
+`,
+      solution: `SELECT customer_id, COUNT(*) AS total_order\nFROM orders\nGROUP BY customer_id\nHAVING COUNT(*) > 2\nORDER BY total_order DESC`,
+      tests: [
+        { label: 'Menggunakan GROUP BY customer_id', check: code => /GROUP\s+BY\s+customer_id/i.test(code) },
+        { label: 'Menggunakan HAVING (bukan WHERE) untuk filter agregasi', check: code => /HAVING/i.test(code) && /COUNT\s*\(\s*\*\s*\)\s*>\s*2/i.test(code) },
+        { label: 'ORDER BY total_order DESC', check: code => /ORDER\s+BY/i.test(code) && /DESC/i.test(code) }
+      ],
+      hints: [
+        'WHERE memfilter sebelum agregasi, HAVING memfilter setelah agregasi.',
+        'Syntax HAVING: <code>HAVING COUNT(*) > 2</code>.',
+        'Urutan klausa: SELECT → FROM → GROUP BY → HAVING → ORDER BY.'
+      ]
+    },
+    {
+      id: 'ch7_q2',
+      title: 'Window Function: RANK()',
+      desc: 'Tulis query untuk me-ranking produk berdasarkan total revenue DI DALAM setiap kategori. Gunakan window function <code>RANK() OVER (PARTITION BY ... ORDER BY ...)</code>.',
+      expected: 'Query menggunakan RANK() OVER dengan PARTITION BY category dan ORDER BY revenue DESC.',
+      starterCode: `-- Tabel: products(product_id, product_name, category, revenue)
+-- Ranking produk per kategori berdasarkan revenue
+
+SELECT
+    product_name,
+    category,
+    revenue,
+    RANK() OVER (
+        -- Partition per kategori
+        
+        -- Urutkan dari revenue tertinggi
+        
+    ) AS rank_in_category
+FROM products
+ORDER BY category, rank_in_category`,
+      solution: `SELECT product_name, category, revenue,\nRANK() OVER (PARTITION BY category ORDER BY revenue DESC) AS rank_in_category\nFROM products\nORDER BY category, rank_in_category`,
+      tests: [
+        { label: 'Menggunakan RANK() OVER (...)', check: code => /RANK\s*\(\s*\)\s*OVER/i.test(code) },
+        { label: 'PARTITION BY category', check: code => /PARTITION\s+BY\s+category/i.test(code) },
+        { label: 'ORDER BY revenue DESC dalam OVER()', check: code => /ORDER\s+BY\s+revenue\s+DESC/i.test(code) }
+      ],
+      hints: [
+        'Window function syntax: <code>FUNGSI() OVER (PARTITION BY kolom ORDER BY kolom)</code>.',
+        'PARTITION BY = reset ranking setiap ganti kategori.',
+        'Lengkap dalam OVER: <code>PARTITION BY category ORDER BY revenue DESC</code>.'
+      ]
+    }
+  ]
+};
+
+// Fallback challenges untuk chapter yang belum punya soal
+for (let i = 1; i <= 11; i++) {
+  if (!CHALLENGES[i]) {
+    CHALLENGES[i] = [
+      {
+        id: `ch${i}_q1`,
+        title: 'Latihan akan segera tersedia',
+        desc: 'Soal interaktif untuk chapter ini sedang disiapkan. Sementara, pelajari contoh kode di tab Praktek lama dan coba modifikasi sendiri!',
+        expected: 'Print "Siap belajar!" untuk menyelesaikan challenge ini.',
+        starterCode: `# Soal untuk chapter ini coming soon!\n# Sementara, print pesan berikut:\n\nprint("Siap belajar!")`,
+        solution: `print("Siap belajar!")`,
+        tests: [
+          { label: 'Print "Siap belajar!"', checkOutput: out => out.includes('Siap belajar!') }
+        ],
+        hints: ['Cukup jalankan <code>print("Siap belajar!")</code>']
+      }
+    ];
+  }
+}
+
+// ---- PYODIDE SETUP ----
+let pyodide = null;
+let pyodideReady = false;
+let pyodideLoading = false;
+
+async function ensurePyodide() {
+  if (pyodideReady) return pyodide;
+  if (pyodideLoading) {
+    await new Promise(r => { const iv = setInterval(()=>{ if(pyodideReady){clearInterval(iv);r();} },200); });
+    return pyodide;
+  }
+  pyodideLoading = true;
+  try {
+    pyodide = await loadPyodide();
+    // Load micro-subset of packages available in Pyodide
+    await pyodide.loadPackagesFromImports('import numpy as np\nimport pandas as pd\nimport matplotlib').catch(()=>{});
+    pyodideReady = true;
+  } catch(e) {
+    console.warn('Pyodide load failed:', e);
+  }
+  pyodideLoading = false;
+  return pyodide;
+}
+
+// ---- CHALLENGE STATE ----
+// state.challengeProgress[chId] = { currentQ: 0, passed: {qId: true} }
+
+function getChallengeProgress(chId) {
+  if (!state.challengeProgress) state.challengeProgress = {};
+  if (!state.challengeProgress[chId]) state.challengeProgress[chId] = { currentQ: 0, passed: {} };
+  return state.challengeProgress[chId];
+}
+
+function buildChallengePanel(ch) {
+  const challenges = CHALLENGES[ch.id] || [];
+  if (!challenges.length) return `<div style="padding:20px;font-size:12px;color:var(--text3)">Belum ada soal interaktif.</div>`;
+
+  const prog = getChallengeProgress(ch.id);
+  const currentIdx = Math.min(prog.currentQ, challenges.length - 1);
+  const q = challenges[currentIdx];
+  const totalPassed = Object.keys(prog.passed || {}).length;
+  const pct = Math.round(totalPassed / challenges.length * 100);
+
+  // Nav pills
+  const navPills = challenges.map((cq, i) => {
+    const isDone = prog.passed && prog.passed[cq.id];
+    return `<button class="ch-pill${i===currentIdx?' active':''}${isDone?' done':''}" 
+      onclick="goToChallenge(${ch.id},${i})">${i+1}${isDone?' ✓':''}</button>`;
+  }).join('<span class="ch-pill-sep">·</span>');
+
+  // Test cases
+  const testsHTML = (q.tests || []).map((t, ti) => {
+    const passed = prog.passed && prog.passed[q.id + '_t' + ti];
+    return `<div class="test-case${passed?' pass':''}" id="tc-${ch.id}-${currentIdx}-${ti}">
+      <span class="test-icon">${passed ? '✅' : '⬜'}</span>
+      <span class="test-label">${t.label}</span>
+    </div>`;
+  }).join('');
+
+  // Hints
+  const hintsHTML = (q.hints || []).map(h => `<li class="hint-step">${h}</li>`).join('');
+
+  const alreadyPassed = prog.passed && prog.passed[q.id];
+
+  return `<div class="challenge-wrap" id="chal-wrap-${ch.id}">
+    <!-- Top nav: challenge pills + progress -->
+    <div class="challenge-nav">
+      <span style="font-size:10px;color:var(--text3);margin-right:4px">Soal:</span>
+      ${navPills}
+      <div style="flex:1"></div>
+      <span style="font-size:10px;color:var(--text3)">${totalPassed}/${challenges.length} selesai</span>
+    </div>
+
+    <!-- Main: left task + right editor -->
+    <div class="challenge-body">
+      <!-- LEFT: Task description -->
+      <div class="challenge-left">
+        <div class="chal-task">
+          <div class="chal-task-num">Soal ${currentIdx+1} dari ${challenges.length}</div>
+          <div class="chal-task-title">${q.title}</div>
+          <div class="chal-task-desc">${q.desc}</div>
+          <div class="chal-expected">
+            <div class="chal-expected-lbl">Yang diharapkan</div>
+            <div class="chal-expected-val">${q.expected}</div>
+          </div>
+          <div class="test-cases" id="tests-${ch.id}-${currentIdx}">
+            ${testsHTML}
+          </div>
+          ${alreadyPassed ? `<div class="success-banner show" style="margin:0 0 12px 0">
+            <div class="success-icon">🎉</div>
+            <div class="success-text"><div class="success-title">Soal ini sudah selesai!</div>
+            <div class="success-sub">Kamu bisa lanjut ke soal berikutnya.</div></div>
+          </div>` : ''}
+        </div>
+        <!-- Hints -->
+        <div class="hint-section">
+          <button class="hint-toggle" onclick="toggleHint(${ch.id})">💡 Tampilkan Hint</button>
+          <div class="hint-box" id="hint-box-${ch.id}">
+            <ul class="hint-steps">${hintsHTML}</ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Code editor + output -->
+      <div class="challenge-right">
+        <div class="editor-toolbar">
+          <span class="editor-lang">${ch.id === 7 ? 'SQL' : 'PYTHON'}</span>
+          <div class="editor-actions">
+            <button class="editor-btn btn-reset" onclick="resetCode(${ch.id},${currentIdx})">↺ Reset</button>
+            <button class="editor-btn btn-ai" onclick="aiReviewCode(${ch.id},${currentIdx})">✦ AI Review</button>
+            <button class="editor-btn btn-run" id="run-btn-${ch.id}" onclick="runCode(${ch.id},${currentIdx})">▶ Jalankan</button>
+          </div>
+        </div>
+        <textarea class="code-editor" id="editor-${ch.id}-${currentIdx}" 
+          spellcheck="false"
+          onkeydown="handleTab(event)">${escHtml(q.starterCode)}</textarea>
+        <div class="output-panel">
+          <div class="output-toolbar">
+            <div class="output-status" id="out-status-${ch.id}"></div>
+            <span>Output</span>
+          </div>
+          <div class="output-text info" id="output-${ch.id}">Tekan ▶ Jalankan untuk menjalankan kode kamu...</div>
+        </div>
+        <div class="ai-review-panel" id="ai-panel-${ch.id}">
+          <div class="ai-review-header">✦ AI Review</div>
+          <div class="ai-review-body" id="ai-body-${ch.id}"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="chal-progress-wrap">
+      <div class="chal-prog-bar"><div class="chal-prog-fill" style="width:${pct}%"></div></div>
+      <span class="chal-prog-label">${pct}% selesai</span>
+    </div>
+  </div>`;
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function handleTab(e) {
+  if (e.key !== 'Tab') return;
+  e.preventDefault();
+  const ta = e.target;
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.slice(0,start) + '    ' + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + 4;
+}
+
+function toggleHint(chId) {
+  const box = document.getElementById('hint-box-' + chId);
+  if (!box) return;
+  const btn = box.previousElementSibling;
+  if (box.classList.contains('show')) {
+    box.classList.remove('show');
+    if (btn) btn.textContent = '💡 Tampilkan Hint';
+  } else {
+    box.classList.add('show');
+    if (btn) btn.textContent = '💡 Sembunyikan Hint';
+  }
+}
+
+function goToChallenge(chId, idx) {
+  if (!state.challengeProgress) state.challengeProgress = {};
+  if (!state.challengeProgress[chId]) state.challengeProgress[chId] = { currentQ: 0, passed: {} };
+  state.challengeProgress[chId].currentQ = idx;
+  save();
+  renderChapters();
+  // scroll to chapter
+  setTimeout(() => {
+    const el = document.getElementById('chal-wrap-' + chId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function resetCode(chId, idx) {
+  const q = (CHALLENGES[chId] || [])[idx];
+  if (!q) return;
+  const editor = document.getElementById(`editor-${chId}-${idx}`);
+  if (editor) editor.value = q.starterCode;
+}
+
+async function runCode(chId, idx) {
+  const q = (CHALLENGES[chId] || [])[idx];
+  if (!q) return;
+  const editor = document.getElementById(`editor-${chId}-${idx}`);
+  const outputEl = document.getElementById(`output-${chId}`);
+  const statusEl = document.getElementById(`out-status-${chId}`);
+  const runBtn = document.getElementById(`run-btn-${chId}`);
+  if (!editor || !outputEl) return;
+
+  const code = editor.value;
+  const isSql = (chId === 7);
+
+  // Disable run button
+  if (runBtn) runBtn.disabled = true;
+  outputEl.className = 'output-text info';
+  outputEl.textContent = 'Menjalankan...';
+  if (statusEl) { statusEl.className = 'output-status running'; }
+
+  let output = '';
+  let runError = false;
+
+  if (isSql) {
+    // For SQL: just check code structure, no actual execution
+    output = '[SQL Mode] Kode SQL tidak dieksekusi di browser.\nValidasi dilakukan berdasarkan struktur query kamu.';
+  } else {
+    // Python via Pyodide
+    try {
+      const py = await ensurePyodide();
+      if (!py) throw new Error('Pyodide tidak tersedia. Cek koneksi internet dan reload halaman.');
+
+      // Capture stdout
+      py.runPython(`
+import sys
+from io import StringIO
+_captured = StringIO()
+sys.stdout = _captured
+`);
+      try {
+        py.runPython(code);
+      } catch(e) {
+        runError = true;
+        output = 'Error: ' + e.message;
+      }
+      if (!runError) {
+        output = py.runPython(`
+sys.stdout = sys.__stdout__
+_captured.getvalue()
+`);
+      } else {
+        py.runPython(`sys.stdout = sys.__stdout__`);
+      }
+    } catch(e) {
+      runError = true;
+      output = 'Error: ' + (e.message || String(e));
+    }
+  }
+
+  // Display output
+  outputEl.className = runError ? 'output-text error' : 'output-text';
+  outputEl.textContent = output || '(tidak ada output)';
+
+  // Run tests
+  const prog = getChallengeProgress(chId);
+  if (!prog.passed) prog.passed = {};
+
+  let allPass = true;
+  (q.tests || []).forEach((t, ti) => {
+    let pass = false;
+    if (t.check) pass = t.check(code);
+    if (t.checkOutput && !isSql) pass = pass || t.checkOutput(output);
+    if (isSql && t.check) pass = t.check(code); // SQL only checks code structure
+
+    const tcEl = document.getElementById(`tc-${chId}-${idx}-${ti}`);
+    if (tcEl) {
+      tcEl.className = 'test-case' + (pass ? ' pass' : ' fail');
+      tcEl.querySelector('.test-icon').textContent = pass ? '✅' : '❌';
+      tcEl.querySelector('.test-label').style.color = pass ? 'var(--teal)' : 'var(--coral)';
+    }
+    if (!pass) allPass = false;
+    // track per-test pass state
+    if (pass) prog.passed[q.id + '_t' + ti] = true;
+    else delete prog.passed[q.id + '_t' + ti];
+  });
+
+  if (statusEl) statusEl.className = 'output-status ' + (runError ? 'fail' : allPass ? 'pass' : 'fail');
+
+  if (allPass && !runError) {
+    prog.passed[q.id] = true;
+    save();
+    // Show success banner
+    setTimeout(() => {
+      state.challengeProgress[chId] = prog;
+      save();
+      renderChapters();
+    }, 800);
+  } else {
+    save();
+  }
+
+  if (runBtn) runBtn.disabled = false;
+}
+
+async function aiReviewCode(chId, idx) {
+  const q = (CHALLENGES[chId] || [])[idx];
+  if (!q) return;
+  const editor = document.getElementById(`editor-${chId}-${idx}`);
+  const aiPanel = document.getElementById(`ai-panel-${chId}`);
+  const aiBody = document.getElementById(`ai-body-${chId}`);
+  if (!editor || !aiPanel || !aiBody) return;
+
+  const code = editor.value;
+  aiPanel.classList.add('show');
+  aiBody.textContent = 'Menganalisis kode kamu...';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system: `Kamu adalah tutor Data Science yang membantu siswa belajar Python/SQL. Berikan review singkat (max 3 paragraf) dalam bahasa Indonesia. Format: 1) Apa yang sudah benar, 2) Apa yang perlu diperbaiki (spesifik), 3) Satu tip tambahan. Gunakan bahasa yang supportif. Jika ada error sintaks, tunjukkan baris mana yang salah. Gunakan backtick untuk kode inline.`,
+        messages: [{
+          role: 'user',
+          content: `Soal: ${q.title}\nDeskripsi: ${q.desc}\n\nKode siswa:\n\`\`\`\n${code.slice(0,3000)}\n\`\`\`\n\nBerikan review singkat.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const text = (data.content||[]).map(b=>b.text||'').join('');
+    // Simple markdown: backticks → code tags
+    aiBody.innerHTML = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/\n/g,'<br>');
+  } catch(e) {
+    aiBody.textContent = 'Gagal mendapatkan review: ' + e.message;
+  }
+}
+
+// ===== END INTERACTIVE CHALLENGES =====
+
+renderChapters();
+</script>
+</body>
+</html>
